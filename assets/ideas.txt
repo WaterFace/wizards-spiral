@@ -1,0 +1,59 @@
+Wizard's Spiral
+
+Intro:
+You are an *Adventurer*. 
+
+You'd like to think so anyway. Really, it's your first day. You've just left your home town
+for the first time in your life, with *the best second-hand set of armor* your pocket money
+could afford.
+
+While on your way to the big city to join the *Adventurer's Guild*, you daydream about the
+heroic *battles*, foul *monsters*, and *legendary artifacts* you will surely encounter in your
+new life as an Adventurer. You smile at a pair of deer frolicking in the roadside field as you
+turn a corner.
+
+You should have kept one eye on the road, for your next few steps have you bump into *an old man*
+traveling in the opposite direction. The *old man*, dressed in heavy crimson robes, tumbles to the 
+ground. You begin to apologize profusely and offer your hand to help him up.
+
+The *old man* bats your hand away, slowly lifting himself to his feet using his *walking stick*,
+muttering and grumbling all the way. By the time he's standing, he's shouting at you. *"Fool!"*,
+*"Idiot!"*, and the like.
+
+Suddenly, he lifts his *staff* to the sky, which blackens as a torrential downpour begins. 
+The *old man* bellows to be heard over the rain: *"I curse you! A thousand lifetimes of travail 
+awaits! Begone!"* As the last word leaves his mouth, a bolt of *lighting* strikes his staff.
+
+The light is blinding and the thunder is deafening. But as your senses return to you, you can tell
+that you have been transported *elsewhere*. You find yourself in a *small cottage*; it seems normal enough,
+but you can tell you're nowhere near your hometown.
+
+Looks like there's a *church* to the north. Maybe you can find out more over there...
+
+
+Items:
+- Trusty Armor
+  Grants the "Armor" skill.
+  gain Armor XP by taking hits.
+  levels in Armor reduce all damage taken
+
+- Soleil's Sword
+  Grants the "Sword" skill.
+  gain Sword XP by dealing damage.
+  levels in Sword increase melee damage dealt
+
+- Prince's Shield
+  Grants the "Shield" skill.
+  gain Shield XP by blocking hits.
+  levels in Shield give a chance to negate incoming damage (blocked hits still grant Armor XP)
+
+- Wulf's Pants
+  Grants the "Pants" skill.
+  gain Pants XP by knocking back enemies.
+  levels in Pants increase outgoing knockback, and decrease incoming knockback.
+
+- Mirror Witch's Armor Polish
+  Grants the "Mirror" skill.
+  gain Mirror XP by reflecting projectiles.
+  levels in Mirror give a chance to reflect most projectiles back at their source.
+  
