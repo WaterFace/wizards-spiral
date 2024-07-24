@@ -22,15 +22,35 @@ fn main() {
                 setup,
                 (|| Vec2::ZERO).pipe(player::spawn_player),
                 (|| {
-                    vec![(
-                        Vec2::new(100.0, 100.0),
-                        enemy::EnemyStats {
-                            enemy_type: enemy::EnemyType::Melee,
-                            alert_radius: 75.0,
-                            chase_radius: 100.0,
-                            health: 20.0,
-                        },
-                    )]
+                    vec![
+                        (
+                            Vec2::new(100.0, 100.0),
+                            enemy::EnemyStats {
+                                enemy_type: enemy::EnemyType::Melee,
+                                alert_radius: 75.0,
+                                chase_radius: 100.0,
+                                desired_distance: 0.0,
+                            },
+                        ),
+                        (
+                            Vec2::new(-100.0, 100.0),
+                            enemy::EnemyStats {
+                                enemy_type: enemy::EnemyType::Ranged,
+                                alert_radius: 75.0,
+                                chase_radius: 100.0,
+                                desired_distance: 50.0,
+                            },
+                        ),
+                        (
+                            Vec2::new(-100.0, -100.0),
+                            enemy::EnemyStats {
+                                enemy_type: enemy::EnemyType::Ranged,
+                                alert_radius: 75.0,
+                                chase_radius: 100.0,
+                                desired_distance: f32::INFINITY,
+                            },
+                        ),
+                    ]
                 })
                 .pipe(enemy::spawn_melee_enemies),
             ),
