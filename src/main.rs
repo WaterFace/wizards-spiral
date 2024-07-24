@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 mod character_controller;
+mod damage;
 mod enemy;
 mod input;
 mod physics;
@@ -16,6 +17,7 @@ fn main() {
         .add_plugins(input::InputPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(enemy::EnemyPlugin)
+        .add_plugins(damage::DamagePlugin)
         .add_systems(
             OnEnter(states::GameState::InGame),
             (

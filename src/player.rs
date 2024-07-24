@@ -37,7 +37,7 @@ pub fn spawn_player(
     asset_server: Res<AssetServer>,
 ) {
     // TEMPORARY!!
-    commands
+    let player_id = commands
         .spawn(SpriteBundle {
             texture: asset_server.load("sprites/Hero.png"),
             ..Default::default()
@@ -53,9 +53,13 @@ pub fn spawn_player(
                 ..Default::default()
             }),
             Velocity::default(),
+            ExternalImpulse::default(),
             TransformBundle::from_transform(Transform::from_translation(
                 spawn_position.extend(0.0),
             )),
             ActiveEvents::COLLISION_EVENTS,
-        ));
+        ))
+        .id();
+
+    info!("Player entity: {player_id:?}");
 }

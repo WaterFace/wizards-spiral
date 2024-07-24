@@ -25,9 +25,8 @@ pub struct EnemyStats {
     pub desired_distance: f32,
 }
 
-#[derive(Debug, Default, Component, Clone, Copy)]
+#[derive(Debug, Component, Clone, Copy)]
 pub enum EnemyType {
-    #[default]
     Melee,
     Ranged,
 }
@@ -43,6 +42,7 @@ pub enum EnemyState {
 }
 
 #[derive(Debug, Clone, Event)]
+#[allow(unused)]
 pub struct EnemyAlertEvent {
     pub enemy: Entity,
     pub ty: EnemyAlertEventType,
@@ -173,6 +173,7 @@ pub fn spawn_melee_enemies(In(to_spawn): In<Vec<(Vec2, EnemyStats)>>, mut comman
                 ..Default::default()
             }),
             Velocity::default(),
+            ExternalImpulse::default(),
             TransformBundle::from_transform(Transform::from_translation(pos.extend(0.0))),
             ActiveEvents::COLLISION_EVENTS,
             stats,
