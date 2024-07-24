@@ -6,11 +6,13 @@ mod enemy;
 mod input;
 mod physics;
 mod player;
+mod rand;
 mod states;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugins(rand::RandPlugin)
         .add_plugins(physics::PhysicsPlugin)
         .add_plugins(states::StatesPlugin)
         .add_plugins(character_controller::CharacterControllerPlugin)
