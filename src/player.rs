@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::input::PlayerAction;
@@ -28,4 +29,33 @@ fn move_player(
             .unwrap_or_default();
         controller.desired_direction = axis_pair.into();
     }
+}
+
+pub fn spawn_player(
+    In(spawn_position): In<Vec2>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+) {
+    // TEMPORARY!!
+    commands
+        .spawn(SpriteBundle {
+            texture: asset_server.load("sprites/Hero.png"),
+            ..Default::default()
+        })
+        .insert((
+            crate::character_controller::CharacterController::default(),
+            Player,
+            RigidBody::Dynamic,
+            Collider::ball(16.0),
+            ColliderMassProperties::Density(0.0),
+            AdditionalMassProperties::MassProperties(MassProperties {
+                mass: 1.0,
+                ..Default::default()
+            }),
+            Velocity::default(),
+            TransformBundle::from_transform(Transform::from_translation(
+                spawn_position.extend(0.0),
+            )),
+            ActiveEvents::COLLISION_EVENTS,
+        ));
 }
