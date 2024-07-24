@@ -6,7 +6,6 @@ pub struct CharacterController {
     pub desired_direction: Vec2,
     pub max_speed: f32,
     pub acceleration: f32,
-    pub drag: f32,
 }
 
 impl Default for CharacterController {
@@ -14,18 +13,31 @@ impl Default for CharacterController {
         CharacterController {
             desired_direction: Vec2::ZERO,
             acceleration: 15.0,
-            max_speed: 3.0,
-            drag: 1.0,
+            max_speed: 128.0,
         }
     }
 }
 
 fn accelerate_character_controllers(
-    mut query: Query<(&mut ExternalImpulse, &CharacterController)>,
+    mut query: Query<(&mut Velocity, &CharacterController)>,
+    time: Res<Time>,
 ) {
-    for (mut impulse, character_controller) in query.iter_mut() {
-        impulse.impulse +=
-            character_controller.desired_direction * character_controller.acceleration;
+    let dt = time.delta_seconds();
+    for (mut velocity, controller) in query.iter_mut() {
+        // Allow less-than-full-speed movement, but still normalize if necessary so things don't move
+        // faster diagonally
+        let desired_movement = if controller.desired_direction.length_squared() > 1.0 {
+            controller.desired_direction.normalize()
+        } else {
+            controller.desired_direction
+        };
+
+        let vel = velocity.linvel;
+
+        let desired_velocity = desired_movement * controller.max_speed;
+        let diff = desired_velocity - vel;
+
+        velocity.linvel += diff * controller.acceleration * dt;
     }
 }
 
