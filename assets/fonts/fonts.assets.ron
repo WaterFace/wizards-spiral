@@ -1,0 +1,4 @@
+({
+    "normal_font": File(path: "fonts/Not Jam UI Condensed 19.ttf"),
+    "fancy_font": File(path: "fonts/Not Jam Signature 17.ttf"),
+})

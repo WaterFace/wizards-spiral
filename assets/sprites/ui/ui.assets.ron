@@ -1,0 +1,6 @@
+({
+    "panel": Image (
+        path: "sprites/ui/UI Panel.png",
+        sampler: Nearest,
+    ),
+})

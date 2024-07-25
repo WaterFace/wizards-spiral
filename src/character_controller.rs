@@ -41,6 +41,17 @@ fn accelerate_character_controllers(
     }
 }
 
+fn face_characters(mut query: Query<(&CharacterController, &mut Sprite)>) {
+    for (controller, mut sprite) in query.iter_mut() {
+        // Assume sprites are facing right by default
+        if controller.desired_direction.x < 0.0 {
+            sprite.flip_x = true;
+        } else if controller.desired_direction.x > 0.0 {
+            sprite.flip_x = false;
+        }
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct CharacterControllerPlugin;
 
@@ -48,7 +59,8 @@ impl Plugin for CharacterControllerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            accelerate_character_controllers.run_if(in_state(crate::states::GameState::InGame)),
+            (accelerate_character_controllers, face_characters)
+                .run_if(in_state(crate::states::GameState::InGame)),
         );
     }
 }

@@ -13,6 +13,24 @@ impl Plugin for EnemyPlugin {
     }
 }
 
+#[derive(Debug, Clone, Component, Asset, Reflect, serde::Deserialize)]
+pub struct EnemyStats {
+    /// Type of enemy; either Melee or Ranged
+    pub enemy_type: EnemyType,
+    /// Radius at which the enemy is alerted to the player. If the player gets this close, the enemy begins to chase
+    pub alert_radius: f32,
+    /// Radius at which the enemy will stop chasing the player. If the player is this far away, the enemy will stop chasing
+    pub chase_radius: f32,
+    /// How far the enemy will try to stay from the player.
+    pub desired_distance: f32,
+}
+
+#[derive(Debug, Component, Clone, Copy, Reflect, serde::Deserialize)]
+pub enum EnemyType {
+    Melee,
+    Ranged,
+}
+
 #[derive(Debug, Default, Component, Clone, Copy)]
 pub struct Enemy;
 
@@ -36,15 +54,7 @@ pub enum EnemyAlertEventType {
 }
 
 fn alert_enemies(
-    mut enemy_query: Query<
-        (
-            Entity,
-            &mut EnemyState,
-            &crate::assets::EnemyStats,
-            &GlobalTransform,
-        ),
-        With<Enemy>,
-    >,
+    mut enemy_query: Query<(Entity, &mut EnemyState, &EnemyStats, &GlobalTransform), With<Enemy>>,
     player_query: Query<&GlobalTransform, With<crate::player::Player>>,
     mut writer: EventWriter<EnemyAlertEvent>,
     mut gizmos: Gizmos,
@@ -101,7 +111,7 @@ fn move_enemies(
     mut query: Query<
         (
             &EnemyState,
-            &crate::assets::EnemyStats,
+            &EnemyStats,
             &GlobalTransform,
             &mut crate::character_controller::CharacterController,
         ),
@@ -139,36 +149,5 @@ fn move_enemies(
                 controller.desired_direction = dir;
             }
         }
-    }
-}
-
-pub fn spawn_melee_enemies(
-    In(to_spawn): In<Vec<(Vec2, crate::assets::EnemyStats)>>,
-    mut commands: Commands,
-) {
-    for (pos, stats) in to_spawn {
-        commands.spawn((
-            // TODO: make movement speed, etc. configurable
-            crate::character_controller::CharacterController {
-                acceleration: 10.0,
-                max_speed: 64.0,
-                ..Default::default()
-            },
-            Enemy,
-            EnemyState::default(),
-            RigidBody::Dynamic,
-            // TODO: make size configurable?
-            Collider::ball(16.0),
-            ColliderMassProperties::Density(0.0),
-            AdditionalMassProperties::MassProperties(MassProperties {
-                mass: 1.0,
-                ..Default::default()
-            }),
-            Velocity::default(),
-            ExternalImpulse::default(),
-            TransformBundle::from_transform(Transform::from_translation(pos.extend(0.0))),
-            ActiveEvents::COLLISION_EVENTS,
-            stats,
-        ));
     }
 }

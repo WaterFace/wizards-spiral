@@ -5,11 +5,13 @@ mod character_controller;
 mod damage;
 mod enemy;
 mod input;
+mod menus;
 mod physics;
 mod player;
 mod rand;
 mod room;
 mod states;
+mod text;
 
 fn main() {
     App::new()
@@ -24,6 +26,8 @@ fn main() {
         .add_plugins(enemy::EnemyPlugin)
         .add_plugins(damage::DamagePlugin)
         .add_plugins(room::RoomPlugin)
+        .add_plugins(text::TextPlugin)
+        .add_plugins(menus::MenusPlugin)
         .add_systems(
             OnEnter(states::GameState::InGame),
             (setup, (|| Vec2::ZERO).pipe(player::spawn_player)),

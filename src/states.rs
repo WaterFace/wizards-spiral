@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub enum AppState {
     #[default]
     CoreLoading,
+    RoomLoading,
     InMenu,
     AppRunning,
     AppClosing,
@@ -13,9 +14,10 @@ pub enum AppState {
 pub enum GameState {
     #[default]
     None,
-    MainMenu,
     Loading,
+    MainMenu,
     InGame,
+    RoomTransition,
 }
 
 pub struct StatesPlugin;

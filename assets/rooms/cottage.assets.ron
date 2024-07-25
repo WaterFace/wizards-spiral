@@ -1,0 +1,24 @@
+({
+    "info": File(path: "rooms/cottage.info.ron"),
+
+    "background_texture": Image(
+        path: "sprites/cottage/CottageBackground.png",
+        sampler: Nearest
+    ),
+    "obstacle_texture": Image(
+        path: "sprites/forest/ForestObstacle.png",
+        sampler: Nearest
+    ),
+
+    "melee_enemy_texture": Image(
+        path: "sprites/forest/EnemyKnight.png",
+        sampler: Nearest
+    ),
+    "melee_enemy_stats": File(path:"enemies/knight.enemy.ron"),
+
+    "ranged_enemy_texture": Image(
+        path: "sprites/forest/EnemyArcher.png",
+        sampler: Nearest
+    ),
+    "ranged_enemy_stats": File(path:"enemies/archer.enemy.ron"),
+})
