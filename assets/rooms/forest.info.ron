@@ -1,0 +1,6 @@
+(
+    name: "Forest",
+    rect: Rect(min: Vec2(-1000.0, -1000.0), max: Vec2(1000.0, 1000.0)),
+    num_enemies: 100,
+    num_obstacles: 50,
+)

@@ -11,9 +11,10 @@ pub enum AppState {
 
 #[derive(Debug, Default, States, Hash, Eq, PartialEq, Clone, Copy)]
 pub enum GameState {
+    #[default]
     None,
     MainMenu,
-    #[default]
+    Loading,
     InGame,
 }
 
@@ -21,6 +22,13 @@ pub struct StatesPlugin;
 
 impl Plugin for StatesPlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<AppState>().init_state::<GameState>();
+        app.init_state::<AppState>()
+            .init_state::<GameState>()
+            .add_systems(OnEnter(AppState::AppRunning), app_running);
     }
+}
+
+fn app_running(mut next_game_state: ResMut<NextState<GameState>>) {
+    info!("Starting game");
+    next_game_state.set(GameState::InGame)
 }

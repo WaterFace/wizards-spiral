@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+mod assets;
 mod character_controller;
 mod damage;
 mod enemy;
@@ -7,11 +8,13 @@ mod input;
 mod physics;
 mod player;
 mod rand;
+mod room;
 mod states;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugins(assets::AssetsPlugin)
         .add_plugins(rand::RandPlugin)
         .add_plugins(physics::PhysicsPlugin)
         .add_plugins(states::StatesPlugin)
@@ -20,44 +23,10 @@ fn main() {
         .add_plugins(player::PlayerPlugin)
         .add_plugins(enemy::EnemyPlugin)
         .add_plugins(damage::DamagePlugin)
+        .add_plugins(room::RoomPlugin)
         .add_systems(
             OnEnter(states::GameState::InGame),
-            (
-                setup,
-                (|| Vec2::ZERO).pipe(player::spawn_player),
-                (|| {
-                    vec![
-                        (
-                            Vec2::new(100.0, 100.0),
-                            enemy::EnemyStats {
-                                enemy_type: enemy::EnemyType::Melee,
-                                alert_radius: 75.0,
-                                chase_radius: 100.0,
-                                desired_distance: 0.0,
-                            },
-                        ),
-                        (
-                            Vec2::new(-100.0, 100.0),
-                            enemy::EnemyStats {
-                                enemy_type: enemy::EnemyType::Ranged,
-                                alert_radius: 75.0,
-                                chase_radius: 100.0,
-                                desired_distance: 50.0,
-                            },
-                        ),
-                        (
-                            Vec2::new(-100.0, -100.0),
-                            enemy::EnemyStats {
-                                enemy_type: enemy::EnemyType::Ranged,
-                                alert_radius: 75.0,
-                                chase_radius: 100.0,
-                                desired_distance: f32::INFINITY,
-                            },
-                        ),
-                    ]
-                })
-                .pipe(enemy::spawn_melee_enemies),
-            ),
+            (setup, (|| Vec2::ZERO).pipe(player::spawn_player)),
         )
         .run();
 }
@@ -65,7 +34,7 @@ fn main() {
 fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle {
         projection: OrthographicProjection {
-            scale: 0.5,
+            scale: 1.0,
             near: -1000.0,
             far: 1000.0,
             ..Default::default()
