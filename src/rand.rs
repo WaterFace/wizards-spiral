@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use rand::{Rng, RngCore, SeedableRng};
 
 #[derive(Debug, Default)]
 pub struct RandPlugin;
@@ -11,15 +12,18 @@ impl Plugin for RandPlugin {
 }
 
 #[derive(Deref, DerefMut, Resource)]
-pub struct GlobalRng(fastrand::Rng);
+pub struct GlobalRng(rand::rngs::StdRng);
 
 impl FromWorld for GlobalRng {
     fn from_world(world: &mut World) -> Self {
         let seed = world.get_resource::<RngSeed>();
 
         match seed {
-            None => GlobalRng(fastrand::Rng::new()),
-            Some(RngSeed(seed)) => GlobalRng(fastrand::Rng::with_seed(*seed)),
+            None => GlobalRng(
+                rand::rngs::StdRng::from_rng(rand::thread_rng())
+                    .expect("Failed to initialize StdRng"),
+            ),
+            Some(RngSeed(seed)) => GlobalRng(rand::rngs::StdRng::seed_from_u64(*seed)),
         }
     }
 }
@@ -30,7 +34,7 @@ pub struct RngSeed(u64);
 fn update_rng_seed(seed: Option<Res<RngSeed>>, mut commands: Commands) {
     if let Some(seed) = seed {
         if seed.is_changed() {
-            commands.insert_resource(GlobalRng(fastrand::Rng::with_seed(seed.0)))
+            commands.insert_resource(GlobalRng(rand::rngs::StdRng::seed_from_u64(seed.0)))
         }
     }
 }
