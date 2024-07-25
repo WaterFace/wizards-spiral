@@ -57,3 +57,12 @@ Items:
   gain Mirror XP by reflecting projectiles.
   levels in Mirror give a chance to reflect most projectiles back at their source.
   
+- Amanon's Tears
+  Grants the "Healing" skill.
+  gain Healing XP by recovering lost health.
+  levels in Healing cause you to regenerate lost health (X% every 5 seconds)
+
+- Artist's Boots
+  Grants the "Speed" skill.
+  gain Speed XP by walking.
+  levels in Speed incease your movement speed
