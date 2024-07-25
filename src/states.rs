@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
 #[derive(Debug, Default, States, Hash, Eq, PartialEq, Clone, Copy)]
-#[allow(unused)]
 pub enum AppState {
     #[default]
     CoreLoading,
@@ -11,7 +10,6 @@ pub enum AppState {
 }
 
 #[derive(Debug, Default, States, Hash, Eq, PartialEq, Clone, Copy)]
-#[allow(unused)]
 pub enum GameState {
     None,
     MainMenu,

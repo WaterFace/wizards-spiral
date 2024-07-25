@@ -42,7 +42,6 @@ pub enum EnemyState {
 }
 
 #[derive(Debug, Clone, Event)]
-#[allow(unused)]
 pub struct EnemyAlertEvent {
     pub enemy: Entity,
     pub ty: EnemyAlertEventType,

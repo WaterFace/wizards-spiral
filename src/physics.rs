@@ -17,7 +17,6 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
-#[allow(unused)]
 fn toggle_physics_debug_render(mut debug_render_context: ResMut<DebugRenderContext>) {
     let enabled = debug_render_context.enabled;
     debug_render_context.enabled = !enabled;
