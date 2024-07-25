@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use rand::{Rng, RngCore, SeedableRng};
+use rand::SeedableRng;
 
 #[derive(Debug, Default)]
 pub struct RandPlugin;
