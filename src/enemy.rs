@@ -56,7 +56,6 @@ fn alert_enemies(
     mut enemy_query: Query<(Entity, &mut EnemyState, &EnemyStats, &GlobalTransform), With<Enemy>>,
     player_query: Query<&GlobalTransform, With<crate::player::Player>>,
     mut writer: EventWriter<EnemyAlertEvent>,
-    mut gizmos: Gizmos,
 ) {
     let Some(player_pos) = player_query
         .iter()
@@ -68,17 +67,6 @@ fn alert_enemies(
     };
     for (enemy, mut enemy_state, enemy_stats, enemy_transform) in enemy_query.iter_mut() {
         let enemy_pos = enemy_transform.translation().truncate();
-
-        gizmos.circle_2d(
-            enemy_pos,
-            enemy_stats.chase_radius,
-            bevy::color::palettes::basic::GREEN,
-        );
-        gizmos.circle_2d(
-            enemy_pos,
-            enemy_stats.alert_radius,
-            bevy::color::palettes::basic::RED,
-        );
 
         let sqr_dist = player_pos.distance_squared(enemy_pos);
 
