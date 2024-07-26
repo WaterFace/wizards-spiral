@@ -201,7 +201,7 @@ impl PlayerSkills {
         10.0 + (1.0 / 60.0) * (self.get_f32(Skill::Sword)).powi(2)
     }
 
-    /// the fraction of damage the player will take. returns a value betwee 0 and 1
+    /// the fraction of damage the player will take. returns a value between 0 and 1
     pub fn damage_taken(&self) -> f32 {
         1.0 / (1.0 + self.get_f32(Skill::Armor) / 100.0)
     }
