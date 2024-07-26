@@ -17,6 +17,14 @@ impl Plugin for EnemyPlugin {
 pub struct EnemyStats {
     /// Type of enemy; either Melee or Ranged
     pub enemy_type: EnemyType,
+
+    /// Base health. will be multiplied by a per-room difficulty scalar
+    pub health: f32,
+    /// movement speed
+    pub speed: f32,
+    /// mass controls how much knockback this enemy causes, and how much it recieves
+    pub mass: f32,
+
     /// Radius at which the enemy is alerted to the player. If the player gets this close, the enemy begins to chase
     pub alert_radius: f32,
     /// Radius at which the enemy will stop chasing the player. If the player is this far away, the enemy will stop chasing
@@ -27,8 +35,17 @@ pub struct EnemyStats {
 
 #[derive(Debug, Component, Clone, Copy, Reflect, serde::Deserialize)]
 pub enum EnemyType {
-    Melee,
-    Ranged,
+    Melee {
+        melee_damage: f32,
+    },
+    Ranged {
+        melee_damage: f32,
+        projectile_damage: f32,
+        projectile_speed: f32,
+        projectile_lifetime: f32,
+        homing: bool,
+        delay: f32,
+    },
 }
 
 #[derive(Debug, Default, Component, Clone, Copy)]

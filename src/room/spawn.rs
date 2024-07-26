@@ -216,11 +216,10 @@ pub fn spawn_room(
             spawning_rectangle
                 .interior_dist()
                 .sample_iter(rng.as_deref_mut().as_mut())
-                .take(current_room.info.num_enemies),
+                .take(current_room.info.num_melee_enemies + current_room.info.num_ranged_enemies),
         );
         for (index, pos) in working.drain(..).enumerate() {
-            // TODO: make this configurable on the RoomInfo
-            let ty = if rng.gen_bool(0.75) {
+            let ty = if index < current_room.info.num_melee_enemies {
                 super::SpawnerType::Melee
             } else {
                 super::SpawnerType::Ranged

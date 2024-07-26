@@ -118,13 +118,16 @@ pub struct RoomAssets {
     pub ranged_enemy_texture: Handle<Image>,
     #[asset(key = "ranged_enemy_stats")]
     pub ranged_enemy_stats: Handle<crate::enemy::EnemyStats>,
+    #[asset(key = "projectile")]
+    pub projectile: Handle<Image>,
 }
 
 #[derive(Debug, Clone, Resource, Asset, Reflect, serde::Deserialize)]
 pub struct RoomInfo {
     pub name: String,
     pub rect: Rect,
-    pub num_enemies: usize,
+    pub num_melee_enemies: usize,
+    pub num_ranged_enemies: usize,
     pub num_obstacles: usize,
 
     // links
@@ -132,6 +135,8 @@ pub struct RoomInfo {
     pub south: Option<String>,
     pub east: Option<String>,
     pub west: Option<String>,
+
+    pub fixed_level: Option<u64>,
 }
 
 #[derive(Debug, Default, Component)]

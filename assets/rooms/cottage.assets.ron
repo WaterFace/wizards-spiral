@@ -21,4 +21,8 @@
         sampler: Nearest
     ),
     "ranged_enemy_stats": File(path:"enemies/archer.enemy.ron"),
+    "projectile": Image(
+        path: "sprites/forest/Arrow.png",
+        sampler: Nearest,
+    )
 })

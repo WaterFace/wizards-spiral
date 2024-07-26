@@ -21,4 +21,8 @@
         sampler: Nearest
     ),
     "ranged_enemy_stats": File(path:"enemies/necromancer.enemy.ron"),
+    "projectile": Image(
+        path: "sprites/graveyard/NecromanticEnergy.png",
+        sampler: Nearest,
+    )
 })

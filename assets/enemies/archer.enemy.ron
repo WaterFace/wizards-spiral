@@ -1,5 +1,15 @@
 (
-    enemy_type: Ranged,
+    enemy_type: Ranged(
+        melee_damage: 5.0,
+        projectile_damage: 10.0,
+        projectile_speed: 300.0,
+        projectile_lifetime: 2.0,
+        homing: false,
+        delay: 1.5,
+    ),
+    health: 15.0,
+    speed: 110.0,
+    mass: 0.75,
     alert_radius: 200.0,
     chase_radius: 250.0,
     desired_distance: 100.0,
