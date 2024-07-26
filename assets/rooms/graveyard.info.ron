@@ -1,0 +1,7 @@
+(
+    name: "Overflowing Graveyard",
+    rect: Rect(min: Vec2(-500.0, -500.0), max: Vec2(500.0, 500.0)),
+    num_enemies: 50,
+    num_obstacles: 25,
+    west: Some("Fields of Clover"),
+)

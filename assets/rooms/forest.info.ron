@@ -4,4 +4,5 @@
     num_enemies: 25,
     num_obstacles: 50,
     south: Some("Lovely Cottage"),
+    east: Some("Overflowing Graveyard"),
 )

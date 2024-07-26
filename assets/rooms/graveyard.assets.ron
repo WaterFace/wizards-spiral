@@ -1,0 +1,24 @@
+({
+    "info": File(path: "rooms/graveyard.info.ron"),
+
+    "background_texture": Image(
+        path: "sprites/graveyard/GraveyardBackground.png",
+        sampler: Nearest
+    ),
+    "obstacle_texture": Image(
+        path: "sprites/graveyard/GraveyardObstacle.png",
+        sampler: Nearest
+    ),
+
+    "melee_enemy_texture": Image(
+        path: "sprites/graveyard/Ghoul.png",
+        sampler: Nearest
+    ),
+    "melee_enemy_stats": File(path:"enemies/ghoul.enemy.ron"),
+
+    "ranged_enemy_texture": Image(
+        path: "sprites/graveyard/Necromancer.png",
+        sampler: Nearest
+    ),
+    "ranged_enemy_stats": File(path:"enemies/necromancer.enemy.ron"),
+})

@@ -1,0 +1,6 @@
+(
+    enemy_type: Ranged,
+    alert_radius: 350.0,
+    chase_radius: 500.0,
+    desired_distance: 300.0,
+)

@@ -1,0 +1,6 @@
+(
+    enemy_type: Melee,
+    alert_radius: 175.0,
+    chase_radius: 250.0,
+    desired_distance: 0.0,
+)
