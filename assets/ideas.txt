@@ -41,7 +41,7 @@ Items:
 - Soleil's Sword
   Grants the "Sword" skill.
   gain Sword XP by dealing damage.
-  levels in Sword increase melee damage dealt
+  levels in Sword increase damage dealt
   Found in the Clover Fields (big knight boss)
 
 - Prince's Shield
