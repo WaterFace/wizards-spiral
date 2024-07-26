@@ -11,14 +11,22 @@ pub struct LoadAllRoomAssetsPlugin;
 
 impl Plugin for LoadAllRoomAssetsPlugin {
     fn build(&self, app: &mut App) {
-        let mut file = std::fs::File::open("assets/rooms/room_list.ron")
-            .inspect_err(|e| {
-                panic!("Failed to open file 'assets/rooms/room_list.ron': {e}");
-            })
-            .expect("If it couldn't be opened we would have panicked already");
-        let mut buf = String::new();
-        let _ = file.read_to_string(&mut buf);
-        let rooms_to_load: RoomsToLoad = ron::from_str(&buf)
+        #[cfg(not(target_arch = "wasm32"))]
+        let str = {
+            let mut file = std::fs::File::open("assets/rooms/room_list.ron")
+                .inspect_err(|e| {
+                    panic!("Failed to open file 'assets/rooms/room_list.ron': {e}");
+                })
+                .expect("If it couldn't be opened we would have panicked already");
+            let mut str = String::new();
+            let _ = file.read_to_string(&mut str);
+            str
+        };
+
+        #[cfg(target_arch = "wasm32")]
+        let str = include_str!("../../assets/rooms/room_list.ron");
+
+        let rooms_to_load: RoomsToLoad = ron::from_str(&str)
             .inspect_err(|e| {
                 panic!("Failed to parse file 'assets/rooms/room_list.ron': {e}");
             })

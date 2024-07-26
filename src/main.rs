@@ -11,12 +11,19 @@ mod physics;
 mod player;
 mod rand;
 mod room;
+mod skills;
 mod states;
 mod text;
 
 fn main() {
-    App::new()
-        .add_plugins(DefaultPlugins)
+    let mut app = App::new();
+
+    #[cfg(target_arch = "wasm32")]
+    app.add_plugins(bevy_embedded_assets::EmbeddedAssetPlugin {
+        mode: bevy_embedded_assets::PluginMode::ReplaceDefault,
+    });
+
+    app.add_plugins(DefaultPlugins)
         .add_plugins(assets::AssetsPlugin)
         .add_plugins(rand::RandPlugin)
         .add_plugins(physics::PhysicsPlugin)
@@ -30,5 +37,6 @@ fn main() {
         .add_plugins(text::TextPlugin)
         .add_plugins(menus::MenusPlugin)
         .add_plugins(camera::CameraPlugin)
+        .add_plugins(skills::SkillsPlugin)
         .run();
 }
