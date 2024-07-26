@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use serde::Deserialize;
@@ -13,6 +11,7 @@ impl Plugin for LoadAllRoomAssetsPlugin {
     fn build(&self, app: &mut App) {
         #[cfg(not(target_arch = "wasm32"))]
         let str = {
+            use std::io::Read;
             let mut file = std::fs::File::open("assets/rooms/room_list.ron")
                 .inspect_err(|e| {
                     panic!("Failed to open file 'assets/rooms/room_list.ron': {e}");
