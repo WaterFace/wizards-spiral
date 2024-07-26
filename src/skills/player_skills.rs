@@ -216,8 +216,8 @@ impl PlayerSkills {
         0.75 - 700.0 / (self.get_f32(Skill::Mirror).powi(2) + 1000.0)
     }
 
-    /// knockback divides the magnitude of incoming knockback, and multiplies the outgoing magnitude
-    pub fn knockback(&self) -> f32 {
+    /// mass divides the magnitude of incoming knockback, and multiplies the outgoing magnitude
+    pub fn mass(&self) -> f32 {
         1.0 + (self.get_f32(Skill::Pants) / 10.0).sqrt()
     }
 

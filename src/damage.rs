@@ -51,9 +51,14 @@ fn resolve_melee_attacks(
         (With<crate::player::Player>, Without<crate::enemy::Enemy>),
     >,
     mut enemy_query: Query<
-        (&mut ExternalImpulse, &GlobalTransform),
+        (
+            &mut ExternalImpulse,
+            &GlobalTransform,
+            &crate::enemy::EnemyStats,
+        ),
         (With<crate::enemy::Enemy>, Without<crate::player::Player>),
     >,
+    player_skills: Res<crate::skills::PlayerSkills>,
 ) {
     for MeleeAttackEvent { player, enemy } in reader.read() {
         info!("player: {player:?}, enemy: {enemy:?}");
@@ -62,7 +67,8 @@ fn resolve_melee_attacks(
             continue;
         };
 
-        let Ok((mut enemy_impulse, enemy_transform)) = enemy_query.get_mut(*enemy) else {
+        let Ok((mut enemy_impulse, enemy_transform, enemy_stats)) = enemy_query.get_mut(*enemy)
+        else {
             warn!("resolve_melee_attacks: enemy query unsucessful");
             continue;
         };
@@ -72,8 +78,9 @@ fn resolve_melee_attacks(
 
         let dir = (player_pos - enemy_pos).normalize_or_zero();
 
-        // TODO: hook this up to stats
-        player_impulse.impulse += dir * 300.0;
-        enemy_impulse.impulse -= dir * 300.0;
+        let player_mass = player_skills.mass();
+        let enemy_mass = enemy_stats.mass;
+        player_impulse.impulse += dir * 300.0 * enemy_mass / player_mass;
+        enemy_impulse.impulse -= dir * 300.0 * player_mass / enemy_mass;
     }
 }
