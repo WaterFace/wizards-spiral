@@ -5,9 +5,6 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::input::PlayerAction;
 
-#[derive(Debug, Default, Component)]
-pub struct Player;
-
 #[derive(Debug, Default)]
 pub struct PlayerPlugin;
 
@@ -27,6 +24,24 @@ impl Plugin for PlayerPlugin {
                 Update,
                 move_player.run_if(in_state(crate::states::GameState::InGame)),
             );
+    }
+}
+
+#[derive(Debug, Default, Component)]
+pub struct Player;
+
+#[derive(Debug, Resource)]
+pub struct PlayerHealth {
+    pub current: f32,
+    pub maximum: f32,
+}
+
+impl Default for PlayerHealth {
+    fn default() -> Self {
+        PlayerHealth {
+            current: 100.0,
+            maximum: 100.0,
+        }
     }
 }
 
