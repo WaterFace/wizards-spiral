@@ -72,6 +72,8 @@ pub fn spawn_enemies(
                 ActiveEvents::COLLISION_EVENTS,
                 transform.clone(),
                 super::SpawnerIndex(spawner.index),
+                // So the enemy will be despawned when we change room
+                crate::room::RoomObject,
             ));
     }
 
@@ -80,9 +82,12 @@ pub fn spawn_enemies(
 
 pub fn destroy_room(mut commands: Commands, query: Query<Entity, With<super::RoomObject>>) {
     // TODO: keep track of dead enemies and flag their spawners as inactive in the `PersistentRoomState` cache
+    let mut count = 0;
     for e in query.iter() {
         commands.entity(e).despawn_recursive();
+        count += 1;
     }
+    info!("destroy_room: despawned {count} entities");
 }
 
 pub fn spawn_room(
@@ -161,6 +166,10 @@ pub fn spawn_room(
     }
 
     if let Some(room_state) = room_state.rooms.get(&current_room.info.name) {
+        info!(
+            "{} has been previously visited this cycle, spawning according to cached data",
+            current_room.info.name
+        );
         // room state found, spawn things according to the cached data
         for (index, spawner_state) in room_state.spawners.iter().enumerate() {
             commands.spawn(super::SpawnerBundle {
@@ -186,6 +195,10 @@ pub fn spawn_room(
             });
         }
     } else {
+        info!(
+            "{} hasn't been visited this cycle, spawning new entities",
+            current_room.info.name
+        );
         // room state not found, spawn things freshly and cache the data
         let spawning_rectangle = {
             let room_rect = current_room.info.rect;
@@ -266,6 +279,4 @@ pub fn spawn_room(
             );
         };
     }
-
-    // TODO: send event to say we're finished spawning?
 }
