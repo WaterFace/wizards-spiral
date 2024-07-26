@@ -32,6 +32,8 @@ pub fn game_camera() -> impl Bundle {
             ..Default::default()
         },
         GameCamera,
+        // so we can parent visible things to the camera
+        VisibilityBundle::default(),
     )
 }
 
