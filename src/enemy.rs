@@ -33,6 +33,15 @@ pub struct EnemyStats {
     pub desired_distance: f32,
 }
 
+impl EnemyStats {
+    pub fn melee_damage(&self) -> f32 {
+        match self.enemy_type {
+            EnemyType::Melee { melee_damage } => melee_damage,
+            EnemyType::Ranged { melee_damage, .. } => melee_damage,
+        }
+    }
+}
+
 #[derive(Debug, Component, Clone, Copy, Reflect, serde::Deserialize)]
 pub enum EnemyType {
     Melee {
@@ -50,6 +59,21 @@ pub enum EnemyType {
 
 #[derive(Debug, Default, Component, Clone, Copy)]
 pub struct Enemy;
+
+#[derive(Debug, Component)]
+pub struct EnemyHealth {
+    pub maximum: f32,
+    pub current: f32,
+}
+
+impl EnemyHealth {
+    pub fn new(max: f32) -> Self {
+        EnemyHealth {
+            maximum: max,
+            current: max,
+        }
+    }
+}
 
 #[derive(Debug, Default, Component)]
 pub enum EnemyState {

@@ -6,11 +6,17 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<MeleeAttackEvent>().add_systems(
-            Update,
-            (detect_melee_attacks, resolve_melee_attacks)
-                .run_if(in_state(crate::states::GameState::InGame)),
-        );
+        app.add_event::<MeleeAttackEvent>()
+            .add_event::<DamageEvent>()
+            .add_systems(
+                Update,
+                (
+                    detect_melee_attacks,
+                    resolve_melee_attacks,
+                    handle_damage_events,
+                )
+                    .run_if(in_state(crate::states::GameState::InGame)),
+            );
     }
 }
 
@@ -18,6 +24,41 @@ impl Plugin for DamagePlugin {
 pub struct MeleeAttackEvent {
     pub player: Entity,
     pub enemy: Entity,
+}
+
+#[derive(Debug, Clone, Event)]
+pub enum DamageEvent {
+    Player { damage: f32 },
+    Enemy { entity: Entity, damage: f32 },
+}
+
+fn handle_damage_events(
+    mut damage_events: EventReader<DamageEvent>,
+    mut enemy_query: Query<&mut crate::enemy::EnemyHealth>,
+    player_skills: Res<crate::skills::PlayerSkills>,
+    mut skill_xp_events: EventWriter<crate::skills::SkillXpEvent>,
+    mut player_health: ResMut<crate::player::PlayerHealth>,
+) {
+    for ev in damage_events.read() {
+        match ev {
+            DamageEvent::Player { damage } => {
+                player_health.current -= damage * player_skills.damage_taken();
+                skill_xp_events.send(crate::skills::SkillXpEvent {
+                    skill: crate::skills::Skill::Armor,
+                    // TODO: scale xp gained based on how much damage you took?
+                    xp: 1.0,
+                });
+            }
+            DamageEvent::Enemy { entity, damage } => {
+                let Ok(mut enemy_health) = enemy_query.get_mut(*entity) else {
+                    warn!("Got damage event for non-existant enemy {:?}", entity);
+                    continue;
+                };
+                enemy_health.current -= damage;
+                // TODO: send enemy death event if current < 0
+            }
+        }
+    }
 }
 
 fn detect_melee_attacks(
@@ -59,6 +100,7 @@ fn resolve_melee_attacks(
         (With<crate::enemy::Enemy>, Without<crate::player::Player>),
     >,
     player_skills: Res<crate::skills::PlayerSkills>,
+    mut damage_events: EventWriter<DamageEvent>,
 ) {
     for MeleeAttackEvent { player, enemy } in reader.read() {
         info!("player: {player:?}, enemy: {enemy:?}");
@@ -83,5 +125,14 @@ fn resolve_melee_attacks(
         let enemy_mass = enemy_stats.mass;
         player_impulse.impulse += dir * 300.0 * enemy_mass / player_mass;
         enemy_impulse.impulse -= dir * 300.0 * player_mass / enemy_mass;
+
+        // TODO: scale based on room difficulty
+        damage_events.send(DamageEvent::Player {
+            damage: enemy_stats.melee_damage(),
+        });
+        damage_events.send(DamageEvent::Enemy {
+            entity: *enemy,
+            damage: player_skills.attack_damage(),
+        });
     }
 }

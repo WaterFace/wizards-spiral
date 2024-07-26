@@ -32,11 +32,11 @@ pub fn spawn_enemies(
         let (texture, stats) = match spawner.ty {
             super::SpawnerType::Melee => (
                 current_room.assets.melee_enemy_texture.clone(),
-                current_room.melee_enemy_stats.clone(),
+                &current_room.melee_enemy_stats,
             ),
             super::SpawnerType::Ranged => (
                 current_room.assets.ranged_enemy_texture.clone(),
-                current_room.ranged_enemy_stats.clone(),
+                &current_room.ranged_enemy_stats,
             ),
         };
 
@@ -50,15 +50,15 @@ pub fn spawn_enemies(
                 ..Default::default()
             })
             .insert((
-                // TODO: make movement speed, etc. configurable
                 crate::character_controller::CharacterController {
                     acceleration: 10.0,
-                    max_speed: 64.0,
+                    max_speed: stats.speed,
                     ..Default::default()
                 },
+                stats.clone(),
+                crate::enemy::EnemyHealth::new(stats.health),
                 crate::enemy::Enemy,
                 crate::enemy::EnemyState::default(),
-                stats.clone(),
                 RigidBody::Dynamic,
                 // TODO: make size configurable?
                 Collider::ball(16.0),
