@@ -186,11 +186,11 @@ pub fn spawn_room(
             commands.spawn(super::ObstacleBundle {
                 texture: current_room.assets.obstacle_texture.clone(),
                 sprite: Sprite {
-                    // custom_size: Some(vec2(32.0, 64.0)),
+                    custom_size: Some(vec2(32.0, 64.0)),
                     ..Default::default()
                 },
                 transform: Transform::from_translation(obstacle_state.position.extend(0.0)),
-                collider: Collider::capsule_y(32.0, 16.0),
+                collider: Collider::capsule_y(12.0, 12.0),
                 ..Default::default()
             });
         }
@@ -260,7 +260,7 @@ pub fn spawn_room(
                     ..Default::default()
                 },
                 transform: Transform::from_translation(pos.extend(0.0)),
-                collider: Collider::capsule_y(16.0, 16.0),
+                collider: Collider::capsule_y(12.0, 12.0),
                 ..Default::default()
             });
 
