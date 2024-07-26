@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_asset_loader::prelude::*;
 use bevy_rapier2d::prelude::*;
 use leafwing_input_manager::prelude::ActionState;
 
@@ -33,6 +34,11 @@ impl Plugin for PlayerPlugin {
 pub struct PlayerAssets {
     #[asset(key = "sword_shield_texture")]
     pub sword_shield_texture: Handle<Image>,
+}
+
+#[derive(Debug, Default, Resource)]
+pub struct PlayerSpawnPosition {
+    pub pos: Vec2,
 }
 
 fn move_player(
@@ -78,5 +84,8 @@ pub fn spawn_player(
         ));
 }
 
-    info!("Player entity: {player_id:?}");
+pub fn destroy_player(mut commands: Commands, player_query: Query<Entity, With<Player>>) {
+    for e in player_query.iter() {
+        commands.entity(e).despawn_recursive()
+    }
 }
