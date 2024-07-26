@@ -8,7 +8,7 @@ impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0))
             .add_plugins(RapierDebugRenderPlugin {
-                enabled: true,
+                enabled: false,
                 ..Default::default()
             });
         let mut rapier_config = RapierConfiguration::new(1.0);
