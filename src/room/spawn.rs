@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_math::vec2;
 use bevy_rapier2d::prelude::*;
-use rand::{prelude::Distribution, Rng};
+use rand::prelude::Distribution;
 
 pub fn spawn_enemies(
     mut commands: Commands,
