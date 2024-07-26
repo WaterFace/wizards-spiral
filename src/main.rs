@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 mod assets;
+mod camera;
 mod character_controller;
 mod damage;
 mod enemy;
