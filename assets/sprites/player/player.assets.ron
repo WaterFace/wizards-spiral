@@ -1,0 +1,6 @@
+({
+    "sword_shield_texture": Image(
+        path: "sprites/player/Hero.png",
+        sampler: Nearest,
+    ),
+})

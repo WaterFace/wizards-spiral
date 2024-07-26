@@ -12,11 +12,27 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            move_player.run_if(in_state(crate::states::GameState::InGame)),
-        );
+        app.init_resource::<PlayerSpawnPosition>()
+            .add_loading_state(
+                LoadingState::new(crate::states::AppState::CoreLoading)
+                    .continue_to_state(crate::states::AppState::RoomLoading)
+                    .on_failure_continue_to_state(crate::states::AppState::AppClosing)
+                    .load_collection::<PlayerAssets>()
+                    .with_dynamic_assets_file::<StandardDynamicAssetCollection>(
+                        "sprites/player/player.assets.ron",
+                    ),
+            )
+            .add_systems(
+                Update,
+                move_player.run_if(in_state(crate::states::GameState::InGame)),
+            );
     }
+}
+
+#[derive(Debug, Resource, AssetCollection)]
+pub struct PlayerAssets {
+    #[asset(key = "sword_shield_texture")]
+    pub sword_shield_texture: Handle<Image>,
 }
 
 fn move_player(
@@ -32,14 +48,15 @@ fn move_player(
 }
 
 pub fn spawn_player(
-    In(spawn_position): In<Vec2>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    player_spawn_pos: Option<Res<PlayerSpawnPosition>>,
+    player_assets: Res<PlayerAssets>,
 ) {
-    // TEMPORARY!!
-    let player_id = commands
+    let spawn_position = player_spawn_pos.map(|a| a.pos).unwrap_or(Vec2::ZERO);
+
+    commands
         .spawn(SpriteBundle {
-            texture: asset_server.load("sprites/Hero.png"),
+            texture: player_assets.sword_shield_texture.clone(),
             ..Default::default()
         })
         .insert((
@@ -58,8 +75,8 @@ pub fn spawn_player(
                 spawn_position.extend(0.0),
             )),
             ActiveEvents::COLLISION_EVENTS,
-        ))
-        .id();
+        ));
+}
 
     info!("Player entity: {player_id:?}");
 }
