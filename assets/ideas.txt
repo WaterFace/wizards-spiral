@@ -36,33 +36,40 @@ Items:
   Grants the "Armor" skill.
   gain Armor XP by taking hits.
   levels in Armor reduce all damage taken
+  Found in the Lovely Cottage (i.e. start the game with it)
 
 - Soleil's Sword
   Grants the "Sword" skill.
   gain Sword XP by dealing damage.
   levels in Sword increase melee damage dealt
+  Found in the Clover Fields (big knight boss)
 
 - Prince's Shield
   Grants the "Shield" skill.
   gain Shield XP by blocking hits.
   levels in Shield give a chance to negate incoming damage (blocked hits still grant Armor XP)
+  Found in the Whitestone Cathedral
 
 - Wulf's Pants
   Grants the "Pants" skill.
   gain Pants XP by knocking back enemies.
   levels in Pants increase outgoing knockback, and decrease incoming knockback.
+  Found in the Frozen Lake
 
 - Mirror Witch's Armor Polish
   Grants the "Mirror" skill.
   gain Mirror XP by reflecting projectiles.
   levels in Mirror give a chance to reflect most projectiles back at their source.
+  Found in the Volcanic Scar
   
 - Amanon's Tears
   Grants the "Healing" skill.
   gain Healing XP by recovering lost health.
   levels in Healing cause you to regenerate lost health (X% every 5 seconds)
+  Found in the Shrine to Amanon
 
 - Artist's Boots
   Grants the "Speed" skill.
   gain Speed XP by walking.
   levels in Speed incease your movement speed
+  Found in the Overflowing Graveyard
