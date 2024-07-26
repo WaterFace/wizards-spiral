@@ -1,6 +1,7 @@
 (
-    name: "Forest",
-    rect: Rect(min: Vec2(-1000.0, -1000.0), max: Vec2(1000.0, 1000.0)),
-    num_enemies: 100,
+    name: "Fields of Clover",
+    rect: Rect(min: Vec2(-500.0, -500.0), max: Vec2(500.0, 500.0)),
+    num_enemies: 25,
     num_obstacles: 50,
+    south: Some("Lovely Cottage"),
 )
