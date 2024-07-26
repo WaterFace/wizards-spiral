@@ -78,6 +78,7 @@ fn resolve_melee_attacks(
 
         let dir = (player_pos - enemy_pos).normalize_or_zero();
 
+        // mass, knockback
         let player_mass = player_skills.mass();
         let enemy_mass = enemy_stats.mass;
         player_impulse.impulse += dir * 300.0 * enemy_mass / player_mass;
