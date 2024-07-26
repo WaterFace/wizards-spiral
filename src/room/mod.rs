@@ -135,7 +135,7 @@ pub struct RoomInfo {
 }
 
 #[derive(Debug, Default, Component)]
-struct RoomObject;
+pub struct RoomObject;
 
 #[derive(Debug, Default, Component)]
 struct Floor;
