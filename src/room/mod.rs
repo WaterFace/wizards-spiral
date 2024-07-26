@@ -80,6 +80,28 @@ struct Floor;
 #[derive(Debug, Default, Component)]
 struct Obstacle;
 
+#[derive(Debug, Clone, Copy)]
+pub enum Direction {
+    North,
+    South,
+    East,
+    West,
+}
+
+impl Direction {
+    pub fn opposite(self) -> Self {
+        match self {
+            Direction::North => Direction::South,
+            Direction::East => Direction::West,
+            Direction::South => Direction::North,
+            Direction::West => Direction::East,
+        }
+    }
+}
+
+#[derive(Debug, Component)]
+struct Wall(Direction);
+
 #[derive(Debug, Component, Default)]
 struct Spawner {
     ty: SpawnerType,

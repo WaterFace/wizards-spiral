@@ -6,11 +6,11 @@ use rand::{prelude::Distribution, Rng};
 pub fn spawn_enemies(
     mut commands: Commands,
     room_state: Res<super::PersistentRoomState>,
-    query: Query<(&super::Spawner, &GlobalTransform)>,
+    query: Query<(&super::Spawner, &Transform)>,
     current_room: Res<super::CurrentRoom>,
     mut next_state: ResMut<NextState<crate::states::GameState>>,
 ) {
-    for (spawner, global_transform) in query.iter() {
+    for (spawner, transform) in query.iter() {
         if !spawner.active {
             continue;
         }
@@ -27,6 +27,8 @@ pub fn spawn_enemies(
             }
         }
 
+        info!("spawning enemy at {:?}", transform.translation);
+
         let (texture, stats) = match spawner.ty {
             super::SpawnerType::Melee => (
                 current_room.assets.melee_enemy_texture.clone(),
@@ -37,6 +39,7 @@ pub fn spawn_enemies(
                 current_room.ranged_enemy_stats.clone(),
             ),
         };
+
         commands
             .spawn(SpriteBundle {
                 sprite: Sprite {
@@ -67,7 +70,7 @@ pub fn spawn_enemies(
                 Velocity::default(),
                 ExternalImpulse::default(),
                 ActiveEvents::COLLISION_EVENTS,
-                global_transform.compute_transform(),
+                transform.clone(),
                 super::SpawnerIndex(spawner.index),
             ));
     }
@@ -89,6 +92,7 @@ pub fn spawn_room(
     mut rng: ResMut<crate::rand::GlobalRng>,
     mut working: Local<Vec<Vec2>>,
 ) {
+    // Floor
     commands.spawn((
         super::FloorBundle {
             texture: current_room.assets.background_texture.clone(),
@@ -105,6 +109,56 @@ pub fn spawn_room(
             stretch_value: 1.0,
         },
     ));
+
+    // Walls
+    const WALL_THICKNESS: f32 = 100.0;
+
+    let room_rect = current_room.info.rect;
+    let top_left = room_rect.min;
+    let top_right = vec2(room_rect.max.x, room_rect.min.y);
+    let bottom_left = vec2(room_rect.min.x, room_rect.max.y);
+    let bottom_right = room_rect.max;
+
+    let wall_rects = [
+        // Left wall
+        Rect::from_corners(
+            top_left - vec2(WALL_THICKNESS, WALL_THICKNESS),
+            bottom_left + vec2(0.0, WALL_THICKNESS),
+        ),
+        // Top wall
+        Rect::from_corners(
+            bottom_left - vec2(WALL_THICKNESS, 0.0),
+            bottom_right + vec2(WALL_THICKNESS, WALL_THICKNESS),
+        ),
+        // Right wall
+        Rect::from_corners(
+            top_right - vec2(0.0, WALL_THICKNESS),
+            bottom_right + vec2(WALL_THICKNESS, WALL_THICKNESS),
+        ),
+        // Bottom wall
+        Rect::from_corners(
+            top_left - vec2(WALL_THICKNESS, WALL_THICKNESS),
+            top_right + vec2(WALL_THICKNESS, 0.0),
+        ),
+    ];
+    for (i, rect) in wall_rects.into_iter().enumerate() {
+        let wall = match i {
+            0 => crate::room::Wall(crate::room::Direction::West),
+            1 => crate::room::Wall(crate::room::Direction::North),
+            2 => crate::room::Wall(crate::room::Direction::East),
+            3 => crate::room::Wall(crate::room::Direction::South),
+            _ => unreachable!(),
+        };
+        commands.spawn((
+            TransformBundle {
+                local: Transform::from_translation(rect.center().extend(0.0)),
+                ..Default::default()
+            },
+            Collider::cuboid(rect.half_size().x, rect.half_size().y),
+            wall,
+            crate::room::RoomObject,
+        ));
+    }
 
     if let Some(room_state) = room_state.rooms.get(&current_room.info.name) {
         // room state found, spawn things according to the cached data
@@ -158,6 +212,8 @@ pub fn spawn_room(
             } else {
                 super::SpawnerType::Ranged
             };
+
+            info!("Placing spawner {index} at {pos:?}");
 
             commands.spawn(super::SpawnerBundle {
                 transform: Transform::from_translation(pos.extend(0.0)),
