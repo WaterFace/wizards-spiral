@@ -7,7 +7,8 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<EnemyAlertEvent>().add_systems(
             Update,
-            (move_enemies, alert_enemies).run_if(in_state(crate::states::GameState::InGame)),
+            (move_enemies, alert_enemies, alert_visual)
+                .run_if(in_state(crate::states::GameState::InGame)),
         );
     }
 }
@@ -50,6 +51,44 @@ pub struct EnemyAlertEvent {
 pub enum EnemyAlertEventType {
     Alert,
     TooFar,
+}
+
+fn alert_visual(mut commands: Commands, mut events: EventReader<EnemyAlertEvent>) {
+    const OFFSET: Vec3 = bevy_math::vec3(0.0, 16.0, 0.0);
+    const VELOCITY: Vec2 = bevy_math::vec2(0.0, 1.0);
+    for EnemyAlertEvent { enemy, ty } in events.read() {
+        match ty {
+            EnemyAlertEventType::TooFar => {
+                // do nothing
+                continue;
+            }
+            EnemyAlertEventType::Alert => {
+                // go on...
+            }
+        }
+
+        let floating_text = commands
+            .spawn((
+                SpatialBundle {
+                    transform: Transform::from_translation(OFFSET),
+                    ..Default::default()
+                },
+                crate::text::TextMarker {
+                    color: Some(bevy::color::palettes::basic::YELLOW.into()),
+                    fancy: false,
+                    font_size: 18.0,
+                    text: "!".to_string(),
+                    ..Default::default()
+                },
+                crate::text::FloatingText {
+                    timer: Timer::from_seconds(0.5, TimerMode::Once),
+                    velocity: VELOCITY,
+                    ..Default::default()
+                },
+            ))
+            .id();
+        commands.entity(*enemy).add_child(floating_text);
+    }
 }
 
 fn alert_enemies(
