@@ -6,7 +6,7 @@ pub struct ChangeRoom {
     /// Which room to go to
     pub next_room_name: String,
     /// Where we're entering from, from the perspective of the new room
-    pub coming_from: Option<super::Direction>,
+    pub coming_from: Option<super::CardinalDirection>,
 }
 
 pub fn handle_change_room(
@@ -62,17 +62,17 @@ pub fn handle_change_room(
         None => {
             pos = room_rect.center();
         }
-        Some(crate::room::Direction::North) => {
+        Some(crate::room::CardinalDirection::North) => {
             pos = room_rect.center() + vec2(0.0, half_size.y - DISTANCE_FROM_EXIT);
         }
-        Some(crate::room::Direction::South) => {
+        Some(crate::room::CardinalDirection::South) => {
             pos = room_rect.center() - vec2(0.0, half_size.y - DISTANCE_FROM_EXIT);
         }
 
-        Some(crate::room::Direction::East) => {
+        Some(crate::room::CardinalDirection::East) => {
             pos = room_rect.center() + vec2(half_size.x - DISTANCE_FROM_EXIT, 0.0);
         }
-        Some(crate::room::Direction::West) => {
+        Some(crate::room::CardinalDirection::West) => {
             pos = room_rect.center() - vec2(half_size.x - DISTANCE_FROM_EXIT, 0.0);
         }
     }

@@ -148,10 +148,10 @@ pub fn spawn_room(
     ];
     for (i, rect) in wall_rects.into_iter().enumerate() {
         let wall = match i {
-            0 => crate::room::Wall(crate::room::Direction::West),
-            1 => crate::room::Wall(crate::room::Direction::North),
-            2 => crate::room::Wall(crate::room::Direction::East),
-            3 => crate::room::Wall(crate::room::Direction::South),
+            0 => crate::room::Wall(crate::room::CardinalDirection::West),
+            1 => crate::room::Wall(crate::room::CardinalDirection::North),
+            2 => crate::room::Wall(crate::room::CardinalDirection::East),
+            3 => crate::room::Wall(crate::room::CardinalDirection::South),
             _ => unreachable!(),
         };
         commands.spawn((

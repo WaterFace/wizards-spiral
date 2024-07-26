@@ -69,10 +69,10 @@ fn detect_wall_collisions(
 
         // have to wrap this in parentheses because rust complains about the `{` before the `else`
         let Some(next_room_name) = (match wall.0 {
-            Direction::North => &current_room_info.north,
-            Direction::South => &current_room_info.south,
-            Direction::East => &current_room_info.east,
-            Direction::West => &current_room_info.west,
+            CardinalDirection::North => &current_room_info.north,
+            CardinalDirection::South => &current_room_info.south,
+            CardinalDirection::East => &current_room_info.east,
+            CardinalDirection::West => &current_room_info.west,
         }) else {
             // We collided with a wall that doesn't link to another room
             continue;
@@ -144,26 +144,26 @@ struct Floor;
 struct Obstacle;
 
 #[derive(Debug, Clone, Copy)]
-pub enum Direction {
+pub enum CardinalDirection {
     North,
     South,
     East,
     West,
 }
 
-impl Direction {
+impl CardinalDirection {
     pub fn opposite(self) -> Self {
         match self {
-            Direction::North => Direction::South,
-            Direction::East => Direction::West,
-            Direction::South => Direction::North,
-            Direction::West => Direction::East,
+            CardinalDirection::North => CardinalDirection::South,
+            CardinalDirection::East => CardinalDirection::West,
+            CardinalDirection::South => CardinalDirection::North,
+            CardinalDirection::West => CardinalDirection::East,
         }
     }
 }
 
 #[derive(Debug, Component)]
-struct Wall(Direction);
+struct Wall(CardinalDirection);
 
 #[derive(Debug, Component, Default)]
 struct Spawner {
