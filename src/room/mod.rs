@@ -5,6 +5,8 @@ use bevy_rapier2d::prelude::*;
 mod events;
 mod spawn;
 
+pub use events::ChangeRoom;
+
 #[derive(Debug, Default)]
 pub struct RoomPlugin;
 
@@ -20,18 +22,79 @@ impl Plugin for RoomPlugin {
                 ),
             )
             .add_systems(
+                Update,
+                detect_wall_collisions.run_if(in_state(crate::states::GameState::InGame)),
+            )
+            .add_systems(
                 OnEnter(crate::states::GameState::RoomTransition),
-                (spawn::destroy_room, spawn::spawn_room, spawn::spawn_enemies).chain(),
+                (
+                    spawn::destroy_room,
+                    crate::player::destroy_player,
+                    crate::camera::destroy_game_camera,
+                    spawn::spawn_room,
+                    apply_deferred,
+                    crate::player::spawn_player,
+                    crate::camera::spawn_game_camera,
+                    spawn::spawn_enemies,
+                )
+                    .chain(),
             );
+    }
+}
+
+fn detect_wall_collisions(
+    mut collisions: EventReader<CollisionEvent>,
+    player_query: Query<Entity, With<crate::player::Player>>,
+    wall_query: Query<&Wall>,
+    current_room: Res<CurrentRoom>,
+    mut writer: EventWriter<events::ChangeRoom>,
+) {
+    for ev in collisions.read() {
+        let CollisionEvent::Started(e1, e2, _flags) = ev else {
+            // we only care about the `Started` events here
+            continue;
+        };
+
+        let Ok(_player) = player_query.get(*e1).or(player_query.get(*e2)) else {
+            continue;
+        };
+
+        let Ok(wall) = wall_query.get(*e1).or(wall_query.get(*e2)) else {
+            continue;
+        };
+
+        info!("Collided with wall");
+
+        let current_room_info = &current_room.info;
+
+        // have to wrap this in parentheses because rust complains about the `{` before the `else`
+        let Some(next_room_name) = (match wall.0 {
+            Direction::North => &current_room_info.north,
+            Direction::South => &current_room_info.south,
+            Direction::East => &current_room_info.east,
+            Direction::West => &current_room_info.west,
+        }) else {
+            // We collided with a wall that doesn't link to another room
+            continue;
+        };
+
+        info!("Wall had a link, trying to go to {:?}", next_room_name);
+
+        writer.send(events::ChangeRoom {
+            next_room_name: next_room_name.clone(),
+            coming_from: Some(wall.0.opposite()),
+        });
+        // return after sending one of these so we don't try to go to multiple rooms at once
+        return;
     }
 }
 
 #[derive(Debug, Resource)]
 pub struct CurrentRoom {
-    info: RoomInfo,
-    melee_enemy_stats: crate::enemy::EnemyStats,
-    ranged_enemy_stats: crate::enemy::EnemyStats,
-    assets: RoomAssets,
+    pub info: RoomInfo,
+    pub melee_enemy_stats: crate::enemy::EnemyStats,
+    pub ranged_enemy_stats: crate::enemy::EnemyStats,
+    pub assets: RoomAssets,
 }
 
 #[derive(Debug, Default, Resource)]
