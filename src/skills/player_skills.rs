@@ -146,7 +146,7 @@ impl PlayerSkills {
     /// returns the total amount of xp required to gain one level in the given skill.
     /// does not include any xp currently stored
     pub fn xp_needed(&self, skill: Skill) -> f32 {
-        self.get_f32(skill) / 2.0
+        1.0 + self.get_f32(skill) / 2.0
     }
 
     /// if the total amount of xp for this skill is greater than `xp`,
