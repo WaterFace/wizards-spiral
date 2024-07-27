@@ -77,6 +77,7 @@ fn send_xp_events(
     mut writer: EventWriter<SkillXpEvent>,
     mut damage_events: EventReader<crate::damage::DamageEvent>,
     mut melee_attack_events: EventReader<crate::damage::MeleeAttackEvent>,
+    mut projectile_reflected_event: EventReader<crate::projectiles::ProjectileReflectEvent>,
 ) {
     // Damage events / Armor skill
     for ev in damage_events.read() {
@@ -95,6 +96,13 @@ fn send_xp_events(
     for crate::damage::MeleeAttackEvent { .. } in melee_attack_events.read() {
         writer.send(SkillXpEvent {
             skill: Skill::Sword,
+            xp: 1.0,
+        });
+    }
+    // Projectile reflected / Mirror skill
+    for crate::projectiles::ProjectileReflectEvent { .. } in projectile_reflected_event.read() {
+        writer.send(SkillXpEvent {
+            skill: Skill::Mirror,
             xp: 1.0,
         });
     }
