@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -11,6 +13,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayerSpawnPosition>()
+            .add_event::<PlayerDeathEvent>()
             .add_loading_state(
                 LoadingState::new(crate::states::AppState::CoreLoading)
                     .continue_to_state(crate::states::AppState::RoomLoading)
@@ -22,7 +25,8 @@ impl Plugin for PlayerPlugin {
             )
             .add_systems(
                 Update,
-                move_player.run_if(in_state(crate::states::GameState::InGame)),
+                (move_player, handle_player_death)
+                    .run_if(in_state(crate::states::GameState::InGame)),
             );
     }
 }
@@ -58,10 +62,64 @@ pub struct PlayerSpawnPosition {
     pub pos: Vec2,
 }
 
+#[derive(Debug, Default, Clone, Event)]
+pub struct PlayerDeathEvent;
+
+#[derive(Debug, Resource)]
+struct PlayerDeathTimer(Timer);
+
+impl Default for PlayerDeathTimer {
+    fn default() -> Self {
+        PlayerDeathTimer(Timer::from_seconds(2.0, TimerMode::Once))
+    }
+}
+
+fn handle_player_death(
+    mut commands: Commands,
+    player_health: Res<PlayerHealth>,
+    player_death_timer: Option<ResMut<PlayerDeathTimer>>,
+    mut player_query: Query<(Entity, &mut Transform), With<Player>>,
+    mut cycle_counter: ResMut<crate::cycles::CycleCounter>,
+    mut next_state: ResMut<NextState<crate::states::GameState>>,
+    time: Res<Time>,
+) {
+    if !player_health.dead {
+        return;
+    }
+
+    if let Some(mut player_death_timer) = player_death_timer {
+        player_death_timer.0.tick(time.delta());
+        if player_death_timer.0.finished() {
+            commands.remove_resource::<PlayerDeathTimer>();
+
+            cycle_counter.count += 1;
+            next_state.set(crate::states::GameState::RestartCycle);
+        }
+    } else {
+        // player just died, do stuff here
+        commands.init_resource::<PlayerDeathTimer>();
+
+        let Ok((player_entity, mut transform)) = player_query.get_single_mut() else {
+            panic!("handle_player_death")
+        };
+        commands
+            .entity(player_entity)
+            .remove::<Collider>()
+            .remove::<RigidBody>();
+        transform.rotation = Quat::from_rotation_z(PI / 2.0);
+    }
+}
+
 fn move_player(
     mut query: Query<&mut crate::character_controller::CharacterController, With<Player>>,
+    player_health: Res<PlayerHealth>,
     player_action: Res<ActionState<PlayerAction>>,
 ) {
+    if player_health.dead {
+        // don't accept input while the player's dead
+        return;
+    }
+
     for mut controller in query.iter_mut() {
         let axis_pair = player_action
             .clamped_axis_pair(&PlayerAction::Move)

@@ -71,26 +71,23 @@ fn reset_init_global_state(
 ) {
     // initialize the cycle counter if necessary
     if cycle_counter.is_none() {
-        commands.init_resource::<CycleCounter>();
-    } else {
-        // TEMPORARY:
-        cycle_counter.unwrap().count += 1;
+        commands.insert_resource(CycleCounter::default());
     }
 
     // merge the previous cycle's progress into the persistent storage
     if let Some(mut player_skills) = player_skills {
         player_skills.end_cycle();
     } else {
-        commands.init_resource::<crate::skills::PlayerSkills>();
+        commands.insert_resource(crate::skills::PlayerSkills::default());
     }
 
     // remove the cached spawn data so rooms will spawn freshly
     if let Some(mut persistent_room_state) = persistent_room_state {
         persistent_room_state.rooms.clear();
     } else {
-        commands.init_resource::<crate::room::PersistentRoomState>();
+        commands.insert_resource(crate::room::PersistentRoomState::default());
     }
 
     // reset/initialize player health
-    commands.init_resource::<crate::player::PlayerHealth>();
+    commands.insert_resource(crate::player::PlayerHealth::default());
 }
