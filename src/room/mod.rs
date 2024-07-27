@@ -178,22 +178,22 @@ struct Spawner {
 }
 
 #[derive(Debug, Default, Resource)]
-struct PersistentRoomState {
-    rooms: HashMap<String, RoomState>,
+pub struct PersistentRoomState {
+    pub rooms: HashMap<String, RoomState>,
 }
 #[derive(Debug, Default)]
-struct RoomState {
-    obstacles: Vec<ObstacleState>,
-    spawners: Vec<SpawnerState>,
+pub struct RoomState {
+    pub obstacles: Vec<ObstacleState>,
+    pub spawners: Vec<SpawnerState>,
 }
 
 #[derive(Debug)]
-struct ObstacleState {
+pub struct ObstacleState {
     position: Vec2,
 }
 
 #[derive(Debug, Default, Clone, Copy)]
-enum SpawnerType {
+pub enum SpawnerType {
     #[default]
     Melee,
     Ranged,
@@ -201,14 +201,14 @@ enum SpawnerType {
 
 /// Stores information about a spawner so it will behave consistently during a cycle
 #[derive(Debug)]
-struct SpawnerState {
+pub struct SpawnerState {
     /// Where the spawner was placed
-    position: Vec2,
+    pub position: Vec2,
     /// Is this spawner still active?
     /// A spawner is active if its corresponding enemy has not been killed this cycle
-    active: bool,
+    pub active: bool,
     /// Which type of enemy this spawner spawns
-    ty: SpawnerType,
+    pub ty: SpawnerType,
 }
 
 #[derive(Debug, Component)]

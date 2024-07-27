@@ -5,11 +5,18 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<EnemyAlertEvent>().add_systems(
-            Update,
-            (move_enemies, alert_enemies, alert_visual)
-                .run_if(in_state(crate::states::GameState::InGame)),
-        );
+        app.add_event::<EnemyAlertEvent>()
+            .add_event::<EnemyDeathEvent>()
+            .add_systems(
+                Update,
+                (
+                    move_enemies,
+                    alert_enemies,
+                    alert_visual,
+                    handle_enemy_death,
+                )
+                    .run_if(in_state(crate::states::GameState::InGame)),
+            );
     }
 }
 
@@ -60,6 +67,11 @@ pub enum EnemyType {
 #[derive(Debug, Default, Component, Clone, Copy)]
 pub struct Enemy;
 
+#[derive(Debug, Event, Clone)]
+pub struct EnemyDeathEvent {
+    pub entity: Entity,
+}
+
 #[derive(Debug, Component)]
 pub struct EnemyHealth {
     pub maximum: f32,
@@ -92,6 +104,56 @@ pub struct EnemyAlertEvent {
 pub enum EnemyAlertEventType {
     Alert,
     TooFar,
+}
+
+fn handle_enemy_death(
+    mut commands: Commands,
+    mut events: EventReader<EnemyDeathEvent>,
+    enemy_query: Query<(
+        &GlobalTransform,
+        &crate::room::SpawnerIndex,
+        &Sprite,
+        &Handle<Image>,
+    )>,
+    current_room: Res<crate::room::CurrentRoom>,
+    mut room_state: ResMut<crate::room::PersistentRoomState>,
+) {
+    let Some(current_room_state) = room_state.rooms.get_mut(&current_room.info.name) else {
+        error!(
+            "handle_enemy_death: Couldn't find persistent room state for room {}!",
+            current_room.info.name
+        );
+        return;
+    };
+
+    for EnemyDeathEvent { entity } in events.read() {
+        let Ok((global_transform, spawner_index, sprite, texture)) = enemy_query.get(*entity)
+        else {
+            warn!(
+                "handle_enemy_death: Got EnemyDeathEvent for non-existent enemy {:?}",
+                entity
+            );
+            continue;
+        };
+
+        // set the persistent state so this enemy won't spawn anymore for this cycle
+        current_room_state.spawners[spawner_index.0].active = false;
+
+        // despawn the enemy
+        commands.entity(*entity).despawn_recursive();
+
+        // spawn a corpse
+        commands.spawn((
+            SpriteBundle {
+                sprite: sprite.clone(),
+                texture: texture.clone(),
+                transform: Transform::from_translation(global_transform.translation().with_z(-5.0))
+                    .with_rotation(Quat::from_rotation_z(std::f32::consts::PI * 0.5)),
+                ..Default::default()
+            },
+            crate::room::RoomObject,
+        ));
+    }
 }
 
 fn alert_visual(mut commands: Commands, mut events: EventReader<EnemyAlertEvent>) {

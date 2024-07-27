@@ -37,6 +37,7 @@ fn handle_damage_events(
     mut enemy_query: Query<&mut crate::enemy::EnemyHealth>,
     player_skills: Res<crate::skills::PlayerSkills>,
     mut skill_xp_events: EventWriter<crate::skills::SkillXpEvent>,
+    mut enemy_death_events: EventWriter<crate::enemy::EnemyDeathEvent>,
     mut player_health: ResMut<crate::player::PlayerHealth>,
 ) {
     for ev in damage_events.read() {
@@ -55,7 +56,9 @@ fn handle_damage_events(
                     continue;
                 };
                 enemy_health.current -= damage;
-                // TODO: send enemy death event if current < 0
+                if enemy_health.current <= 0.0 {
+                    enemy_death_events.send(crate::enemy::EnemyDeathEvent { entity: *entity });
+                }
             }
         }
     }
