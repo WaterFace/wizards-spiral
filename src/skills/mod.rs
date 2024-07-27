@@ -13,7 +13,9 @@ impl Plugin for SkillsPlugin {
             .add_event::<SkillXpEvent>()
             .add_systems(
                 Update,
-                (send_levelup_events, process_unlock_events)
+                    send_xp_events,
+                    process_xp_events,
+                )
                     .run_if(in_state(crate::states::GameState::InGame)),
             );
     }
@@ -49,8 +51,12 @@ fn process_unlock_events(
     mut player_skills: ResMut<PlayerSkills>,
     mut reader: EventReader<SkillUnlockedEvent>,
 ) {
-    for SkillUnlockedEvent { skill } in reader.read() {
-        player_skills.unlock_skill(*skill);
+fn process_xp_events(
+    mut player_skills: ResMut<PlayerSkills>,
+    mut events: EventReader<SkillXpEvent>,
+) {
+    for SkillXpEvent { skill, xp } in events.read() {
+        player_skills.add_xp(*skill, *xp);
     }
 }
 
