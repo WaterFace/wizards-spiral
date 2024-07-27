@@ -11,7 +11,7 @@ impl Plugin for RandPlugin {
     }
 }
 
-#[derive(Deref, DerefMut, Resource)]
+#[derive(Resource)]
 pub struct GlobalRng(rand::rngs::StdRng);
 
 impl FromWorld for GlobalRng {
@@ -25,6 +25,24 @@ impl FromWorld for GlobalRng {
             ),
             Some(RngSeed(seed)) => GlobalRng(rand::rngs::StdRng::seed_from_u64(*seed)),
         }
+    }
+}
+
+impl rand::RngCore for GlobalRng {
+    fn next_u32(&mut self) -> u32 {
+        self.0.next_u32()
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        self.0.next_u64()
+    }
+
+    fn fill_bytes(&mut self, dest: &mut [u8]) {
+        self.0.fill_bytes(dest)
+    }
+
+    fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
+        self.0.try_fill_bytes(dest)
     }
 }
 

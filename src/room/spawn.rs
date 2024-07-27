@@ -77,7 +77,7 @@ pub fn spawn_enemies(
                 crate::room::RoomObject,
             ))
             .insert((
-                crate::enemy::WanderState::new(2.5, 4.0, &mut **rng),
+                crate::enemy::WanderState::new(2.5, 4.0, rng.as_mut()),
                 CollisionGroups::new(
                     crate::physics::COLLISION_GROUP_ENEMY,
                     crate::physics::COLLISION_GROUP_ENEMY
@@ -234,7 +234,7 @@ pub fn spawn_room(
         working.extend(
             spawning_rectangle
                 .interior_dist()
-                .sample_iter(rng.as_deref_mut().as_mut())
+                .sample_iter(rng.as_mut())
                 .take(current_room.info.num_melee_enemies + current_room.info.num_ranged_enemies),
         );
         for (index, pos) in working.drain(..).enumerate() {
@@ -267,7 +267,7 @@ pub fn spawn_room(
         working.extend(
             spawning_rectangle
                 .interior_dist()
-                .sample_iter(rng.as_deref_mut().as_mut())
+                .sample_iter(rng.as_mut())
                 .take(current_room.info.num_obstacles),
         );
         for pos in working.drain(..) {

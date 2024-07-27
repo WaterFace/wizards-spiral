@@ -291,9 +291,9 @@ fn move_enemies(
             EnemyState::Wander => {
                 wander_state.timer.tick(time.delta());
                 if wander_state.timer.finished() {
-                    let new_target = Circle::new(75.0).sample_interior(&mut **rng);
+                    let new_target = Circle::new(75.0).sample_interior(rng.as_mut());
                     wander_state.target = Some(new_target + enemy_pos);
-                    wander_state.reset(&mut **rng);
+                    wander_state.reset(rng.as_mut());
                 }
 
                 if let Some(target) = wander_state.target {
