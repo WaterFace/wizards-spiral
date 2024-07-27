@@ -54,4 +54,29 @@ fn process_unlock_events(
     }
 }
 
-fn send_xp_events(mut writer: EventWriter<SkillXpEvent>) {}
+fn send_xp_events(
+    mut writer: EventWriter<SkillXpEvent>,
+    mut damage_events: EventReader<crate::damage::DamageEvent>,
+    mut melee_attack_events: EventReader<crate::damage::MeleeAttackEvent>,
+) {
+    // Damage events / Armor skill
+    for ev in damage_events.read() {
+        match ev {
+            crate::damage::DamageEvent::Player { .. } => {
+                writer.send(SkillXpEvent {
+                    skill: Skill::Armor,
+                    xp: 1.0,
+                });
+            }
+            _ => {}
+        }
+    }
+
+    // Melee attack events / Sword skill
+    for crate::damage::MeleeAttackEvent { .. } in melee_attack_events.read() {
+        writer.send(SkillXpEvent {
+            skill: Skill::Sword,
+            xp: 1.0,
+        });
+    }
+}
