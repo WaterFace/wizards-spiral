@@ -94,6 +94,34 @@ pub enum EnemyState {
     Chase,
 }
 
+#[derive(Debug, Component)]
+pub struct WanderState {
+    pub timer: Timer,
+    pub min_delay: f32,
+    pub max_delay: f32,
+    pub target: Option<Vec2>,
+}
+
+impl WanderState {
+    pub fn new<R: rand::Rng + ?Sized>(min: f32, max: f32, rng: &mut R) -> Self {
+        let mut wander_state = Self {
+            min_delay: min,
+            max_delay: max,
+            timer: Timer::default(),
+            target: None,
+        };
+        wander_state.reset(rng);
+        wander_state
+    }
+
+    pub fn reset<R: rand::Rng + ?Sized>(&mut self, rng: &mut R) {
+        let t = rng.gen_range(self.min_delay..self.max_delay);
+        self.timer.reset();
+        self.timer
+            .set_duration(std::time::Duration::from_secs_f32(t));
+    }
+}
+
 #[derive(Debug, Clone, Event)]
 pub struct EnemyAlertEvent {
     pub enemy: Entity,
@@ -243,37 +271,59 @@ fn move_enemies(
             &EnemyStats,
             &GlobalTransform,
             &mut crate::character_controller::CharacterController,
+            &mut WanderState,
         ),
         With<Enemy>,
     >,
     player_query: Query<&GlobalTransform, With<crate::player::Player>>,
+    time: Res<Time>,
+    mut rng: ResMut<crate::rand::GlobalRng>,
 ) {
+    const CLOSE_ENOUGH: f32 = 16.0;
     let player_pos = player_query
         .iter()
         .next()
         .map(|t| t.translation().truncate());
 
-    for (enemy_state, stats, transform, mut controller) in query.iter_mut() {
+    for (enemy_state, stats, transform, mut controller, mut wander_state) in query.iter_mut() {
+        let enemy_pos = transform.translation().truncate();
         match enemy_state {
             EnemyState::Wander => {
-                // TODO: implement wandering
-                controller.desired_direction = Vec2::ZERO;
+                wander_state.timer.tick(time.delta());
+                if wander_state.timer.finished() {
+                    let new_target = Circle::new(75.0).sample_interior(&mut **rng);
+                    wander_state.target = Some(new_target + enemy_pos);
+                    wander_state.reset(&mut **rng);
+                }
+
+                if let Some(target) = wander_state.target {
+                    if target.distance(enemy_pos) < CLOSE_ENOUGH {
+                        controller.desired_direction = Vec2::ZERO;
+                        continue;
+                    }
+                    controller.desired_direction = (target - enemy_pos).clamp_length_max(1.0) * 0.5;
+                } else {
+                    controller.desired_direction = Vec2::ZERO;
+                }
             }
             EnemyState::Chase => {
-                let enemy_pos = transform.translation().truncate();
                 let Some(player_pos) = player_pos else {
                     // no player position, so no need to move
                     controller.desired_direction = Vec2::ZERO;
                     continue;
                 };
 
-                let actual_distance_sqr = player_pos.distance_squared(enemy_pos);
-                let desired_distance_sqr = stats.desired_distance * stats.desired_distance;
+                let actual_distance = player_pos.distance(enemy_pos);
+                let desired_distance = stats.desired_distance;
 
                 // move toward the player if the actual distance is greater than the desired distance,
                 // and away if the actual distance is less than the desired distance
                 let dir = (player_pos - enemy_pos).clamp_length_max(1.0)
-                    * f32::signum(actual_distance_sqr - desired_distance_sqr);
+                    * f32::signum(actual_distance - desired_distance);
+                if (actual_distance - desired_distance).abs() < CLOSE_ENOUGH {
+                    controller.desired_direction = Vec2::ZERO;
+                    continue;
+                }
 
                 controller.desired_direction = dir;
             }

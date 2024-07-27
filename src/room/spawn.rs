@@ -9,6 +9,7 @@ pub fn spawn_enemies(
     query: Query<(&super::Spawner, &Transform)>,
     current_room: Res<super::CurrentRoom>,
     mut next_state: ResMut<NextState<crate::states::GameState>>,
+    mut rng: ResMut<crate::rand::GlobalRng>,
 ) {
     for (spawner, transform) in query.iter() {
         if !spawner.active {
@@ -74,7 +75,8 @@ pub fn spawn_enemies(
                 super::SpawnerIndex(spawner.index),
                 // So the enemy will be despawned when we change room
                 crate::room::RoomObject,
-            ));
+            ))
+            .insert(crate::enemy::WanderState::new(2.5, 4.0, &mut **rng));
     }
 
     next_state.set(crate::states::GameState::InGame);
