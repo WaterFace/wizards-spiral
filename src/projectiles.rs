@@ -104,6 +104,7 @@ fn spawn_reflected_projectiles(
                 crate::physics::COLLISION_GROUP_ENEMY,
             ),
             Velocity::linear(dir * projectile.speed),
+            crate::room::RoomObject,
         ));
     }
 }
@@ -284,6 +285,7 @@ fn launch_projectiles(
                 crate::physics::COLLISION_GROUP_PLAYER,
             ),
             Velocity::linear(dir * projectile_launcher_state.projectile_speed),
+            crate::room::RoomObject,
         ));
     }
 }
