@@ -36,7 +36,6 @@ fn handle_damage_events(
     mut damage_events: EventReader<DamageEvent>,
     mut enemy_query: Query<&mut crate::enemy::EnemyHealth>,
     player_skills: Res<crate::skills::PlayerSkills>,
-    mut skill_xp_events: EventWriter<crate::skills::SkillXpEvent>,
     mut enemy_death_events: EventWriter<crate::enemy::EnemyDeathEvent>,
     mut player_health: ResMut<crate::player::PlayerHealth>,
 ) {
@@ -44,11 +43,9 @@ fn handle_damage_events(
         match ev {
             DamageEvent::Player { damage } => {
                 player_health.current -= damage * player_skills.damage_taken();
-                skill_xp_events.send(crate::skills::SkillXpEvent {
-                    skill: crate::skills::Skill::Armor,
-                    // TODO: scale xp gained based on how much damage you took?
-                    xp: 1.0,
-                });
+                if player_health.current <= 0.0 {
+                    player_health.dead = true;
+                }
             }
             DamageEvent::Enemy { entity, damage } => {
                 let Ok(mut enemy_health) = enemy_query.get_mut(*entity) else {
