@@ -196,6 +196,33 @@ impl PlayerSkills {
         }
     }
 
+    pub fn from_save_data(save_data: &crate::save_data::SaveData) -> Self {
+        let mut player_skills = PlayerSkills::default();
+
+        player_skills.stored_levels[Skill::Armor] = save_data.armor_level;
+        player_skills.stored_xp[Skill::Armor] = save_data.armor_xp;
+
+        player_skills.stored_levels[Skill::Sword] = save_data.sword_level;
+        player_skills.stored_xp[Skill::Sword] = save_data.sword_xp;
+
+        player_skills.stored_levels[Skill::Shield] = save_data.shield_level;
+        player_skills.stored_xp[Skill::Shield] = save_data.shield_xp;
+
+        player_skills.stored_levels[Skill::Pants] = save_data.pants_level;
+        player_skills.stored_xp[Skill::Pants] = save_data.pants_xp;
+
+        player_skills.stored_levels[Skill::Mirror] = save_data.mirror_level;
+        player_skills.stored_xp[Skill::Mirror] = save_data.mirror_xp;
+
+        player_skills.stored_levels[Skill::Healing] = save_data.healing_level;
+        player_skills.stored_xp[Skill::Healing] = save_data.healing_xp;
+
+        player_skills.stored_levels[Skill::Speed] = save_data.speed_level;
+        player_skills.stored_xp[Skill::Speed] = save_data.speed_xp;
+
+        player_skills
+    }
+
     /// the amount of damage the player will deal
     pub fn attack_damage(&self) -> f32 {
         10.0 + (1.0 / 60.0) * (self.get_f32(Skill::Sword)).powi(2)

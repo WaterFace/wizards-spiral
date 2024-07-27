@@ -12,6 +12,7 @@ mod physics;
 mod player;
 mod rand;
 mod room;
+mod save_data;
 mod skills;
 mod states;
 mod text;
@@ -25,6 +26,7 @@ fn main() {
     });
 
     app.add_plugins(DefaultPlugins)
+        .add_plugins(save_data::SaveDataPlugin)
         .add_plugins(assets::AssetsPlugin)
         .add_plugins(rand::RandPlugin)
         .add_plugins(physics::PhysicsPlugin)

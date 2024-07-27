@@ -9,5 +9,5 @@ impl Plugin for CyclePlugin {
 
 #[derive(Debug, Default, Resource)]
 pub struct CycleCounter {
-    count: u64,
+    pub count: u64,
 }
