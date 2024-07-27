@@ -17,7 +17,8 @@ impl Plugin for TextPlugin {
         .add_systems(Update, floating_text)
         .add_systems(
             Update,
-            update_next_room_text.run_if(in_state(crate::states::GameState::InGame)),
+            (update_next_room_text, level_up_text)
+                .run_if(in_state(crate::states::GameState::InGame)),
         )
         .add_systems(
             Update,
@@ -33,6 +34,43 @@ impl Plugin for TextPlugin {
                     "fonts/fonts.assets.ron",
                 ),
         );
+    }
+}
+
+fn level_up_text(
+    mut commands: Commands,
+    player_query: Query<Entity, With<crate::player::Player>>,
+    mut events: EventReader<crate::skills::LevelUpEvent>,
+) {
+    const OFFSET: Vec3 = bevy_math::vec3(0.0, 16.0, 0.0);
+    const VELOCITY: Vec2 = bevy_math::vec2(0.0, 1.0);
+    let Ok(player) = player_query.get_single() else {
+        warn!("level_up_text: no player or more than one player found");
+        return;
+    };
+
+    for crate::skills::LevelUpEvent { num_levels, skill } in events.read() {
+        let floating_text = commands
+            .spawn((
+                SpatialBundle {
+                    transform: Transform::from_translation(OFFSET),
+                    ..Default::default()
+                },
+                crate::text::TextMarker {
+                    color: Some(bevy::color::palettes::basic::YELLOW.into()),
+                    fancy: false,
+                    font_size: 18.0,
+                    text: format!("+{} {}", num_levels, skill),
+                    ..Default::default()
+                },
+                crate::text::FloatingText {
+                    timer: Timer::from_seconds(0.5, TimerMode::Once),
+                    velocity: VELOCITY,
+                    ..Default::default()
+                },
+            ))
+            .id();
+        commands.entity(player).add_child(floating_text);
     }
 }
 
