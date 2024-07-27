@@ -1,0 +1,10 @@
+({
+    "healthbar_empty" : Image (
+        path: "sprites/healthbars/HealthbarEmpty.png",
+        sampler: Nearest,
+    ),
+    "healthbar_full" : Image (
+        path: "sprites/healthbars/HealthbarFull.png",
+        sampler: Nearest,
+    ),
+})

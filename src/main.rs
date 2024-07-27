@@ -6,6 +6,7 @@ mod character_controller;
 mod cycles;
 mod damage;
 mod enemy;
+mod healthbars;
 mod input;
 mod menus;
 mod physics;
@@ -42,5 +43,6 @@ fn main() {
         .add_plugins(camera::CameraPlugin)
         .add_plugins(skills::SkillsPlugin)
         .add_plugins(cycles::CyclePlugin)
+        .add_plugins(healthbars::HealthbarsPlugin)
         .run();
 }
