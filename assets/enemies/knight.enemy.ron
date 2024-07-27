@@ -3,7 +3,7 @@
         melee_damage: 10.0,
     ),
     health: 20.0,
-    speed: 100.0,
+    speed: 85.0,
     mass: 1.0,
     alert_radius: 150.0,
     chase_radius: 200.0,
