@@ -13,6 +13,9 @@ impl Plugin for SkillsPlugin {
             .add_event::<SkillXpEvent>()
             .add_systems(
                 Update,
+                (
+                    send_levelup_events,
+                    process_unlock_events,
                     send_xp_events,
                     process_xp_events,
                 )
