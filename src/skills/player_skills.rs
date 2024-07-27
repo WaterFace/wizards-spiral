@@ -15,6 +15,12 @@ pub enum Skill {
     Speed,
 }
 
+impl std::fmt::Display for Skill {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl Skill {
     pub fn iter() -> impl Iterator<Item = Skill> {
         [
