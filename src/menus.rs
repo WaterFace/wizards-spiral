@@ -114,13 +114,22 @@ fn main_menu(
         StateScoped(crate::states::GameState::MainMenu),
     ));
 
-    let continue_button = commands.spawn_button(
-        crate::states::GameState::MainMenu,
-        "Continue Game",
-        Some("continue_game"),
-        fonts.normal.clone(),
-        ui_assets.panel.clone(),
-    );
+    let base = commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    flex_direction: FlexDirection::Column,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            StateScoped(crate::states::GameState::MainMenu),
+        ))
+        .id();
 
     let new_game_button = commands.spawn_button(
         crate::states::GameState::MainMenu,
@@ -129,25 +138,17 @@ fn main_menu(
         fonts.normal.clone(),
         ui_assets.panel.clone(),
     );
-
-    let mut base = commands.spawn((
-        NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                flex_direction: FlexDirection::Column,
-                ..Default::default()
-            },
-            ..Default::default()
-        },
-        StateScoped(crate::states::GameState::MainMenu),
-    ));
     if save_data.is_some() {
-        base.add_child(continue_button);
+        let continue_button = commands.spawn_button(
+            crate::states::GameState::MainMenu,
+            "Continue Game",
+            Some("continue_game"),
+            fonts.normal.clone(),
+            ui_assets.panel.clone(),
+        );
+        commands.entity(base).add_child(continue_button);
     }
-    base.add_child(new_game_button);
+    commands.entity(base).add_child(new_game_button);
 }
 
 fn loading_screen<S: States>(
