@@ -6,6 +6,13 @@ pub struct CyclePlugin;
 impl Plugin for CyclePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            OnTransition {
+                exited: crate::states::GameState::MainMenu,
+                entered: crate::states::GameState::RestartCycle,
+            },
+            start_game,
+        )
+        .add_systems(
             OnEnter(crate::states::GameState::RestartCycle),
             (
                 reset_init_global_state,
@@ -22,6 +29,26 @@ pub struct CycleCounter {
     pub count: u64,
 }
 
+fn start_game(
+    mut commands: Commands,
+    save_data: Option<Res<crate::save_data::SaveData>>,
+    new_game: Option<Res<crate::menus::NewGame>>,
+) {
+    let Some(save_data) = save_data else {
+        info!("start_game: No save data present");
+        return;
+    };
+
+    if let Some(_new_game) = new_game {
+        info!("start_game: ignoring existing save data. starting new game");
+        return;
+    }
+
+    let (player_skills, cycle_counter) = save_data.to_resources();
+    commands.insert_resource(player_skills);
+    commands.insert_resource(cycle_counter);
+}
+
 fn start_cycle(mut change_room: EventWriter<crate::room::ChangeRoom>) {
     change_room.send(crate::room::ChangeRoom {
         next_room_name: "Lovely Cottage".into(),
@@ -32,13 +59,16 @@ fn start_cycle(mut change_room: EventWriter<crate::room::ChangeRoom>) {
 /// reset or initialize various global state
 fn reset_init_global_state(
     mut commands: Commands,
-    cycle_counter: Option<Res<CycleCounter>>,
+    cycle_counter: Option<ResMut<CycleCounter>>,
     player_skills: Option<ResMut<crate::skills::PlayerSkills>>,
     persistent_room_state: Option<ResMut<crate::room::PersistentRoomState>>,
 ) {
     // initialize the cycle counter if necessary
     if cycle_counter.is_none() {
         commands.init_resource::<CycleCounter>();
+    } else {
+        // TEMPORARY:
+        cycle_counter.unwrap().count += 1;
     }
 
     // merge the previous cycle's progress into the persistent storage

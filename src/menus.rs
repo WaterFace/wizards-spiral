@@ -29,10 +29,14 @@ impl Plugin for MenusPlugin {
             .add_systems(Update, process_button_interactions);
 
         // Menu systems
-        let play_id = app.register_system(play);
+        let continue_game_id = app.register_system(continue_game);
+        let new_game_id = app.register_system(new_game);
         app.insert_resource(MainMenuSystems {
-            // TODO: new game, resume game, exit, etc.
-            map: [("play".to_string(), play_id)].into(),
+            map: [
+                ("continue_game".to_string(), continue_game_id),
+                ("new_game".to_string(), new_game_id),
+            ]
+            .into(),
         });
     }
 }
@@ -55,7 +59,16 @@ pub struct MainMenuSystems {
 #[derive(Debug, Default, Component)]
 struct ButtonSystem(&'static str);
 
-fn play(mut next_state: ResMut<NextState<crate::states::GameState>>) {
+/// when inserted, indicates that we want to start a new game, deleting the previous save data
+#[derive(Debug, Default, Resource)]
+pub struct NewGame;
+
+fn continue_game(mut next_state: ResMut<NextState<crate::states::GameState>>) {
+    next_state.set(crate::states::GameState::RestartCycle);
+}
+
+fn new_game(mut commands: Commands, mut next_state: ResMut<NextState<crate::states::GameState>>) {
+    commands.init_resource::<NewGame>();
     next_state.set(crate::states::GameState::RestartCycle);
 }
 
@@ -84,7 +97,12 @@ fn process_button_interactions(
     }
 }
 
-fn main_menu(mut commands: Commands, fonts: Res<crate::text::Fonts>, ui_assets: Res<UiAssets>) {
+fn main_menu(
+    mut commands: Commands,
+    fonts: Res<crate::text::Fonts>,
+    ui_assets: Res<UiAssets>,
+    save_data: Option<Res<crate::save_data::SaveData>>,
+) {
     commands.spawn((
         Camera2dBundle {
             camera: Camera {
@@ -96,56 +114,40 @@ fn main_menu(mut commands: Commands, fonts: Res<crate::text::Fonts>, ui_assets: 
         StateScoped(crate::states::GameState::MainMenu),
     ));
 
-    commands
-        .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..Default::default()
-                },
+    let continue_button = commands.spawn_button(
+        crate::states::GameState::MainMenu,
+        "Continue Game",
+        Some("continue_game"),
+        fonts.normal.clone(),
+        ui_assets.panel.clone(),
+    );
+
+    let new_game_button = commands.spawn_button(
+        crate::states::GameState::MainMenu,
+        "New Game",
+        Some("new_game"),
+        fonts.normal.clone(),
+        ui_assets.panel.clone(),
+    );
+
+    let mut base = commands.spawn((
+        NodeBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                flex_direction: FlexDirection::Column,
                 ..Default::default()
             },
-            StateScoped(crate::states::GameState::MainMenu),
-        ))
-        .with_children(|parent| {
-            parent
-                .spawn((
-                    ButtonBundle {
-                        style: Style {
-                            padding: UiRect::all(Val::Px(16.0)),
-                            align_items: AlignItems::Center,
-                            justify_content: JustifyContent::Center,
-                            ..Default::default()
-                        },
-                        image: UiImage {
-                            texture: ui_assets.panel.clone().into(),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ImageScaleMode::Sliced(TextureSlicer {
-                        border: BorderRect::square(16.0),
-                        ..Default::default()
-                    }),
-                    ButtonSystem("play"),
-                ))
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text::from_section(
-                            "PLAY",
-                            TextStyle {
-                                font: fonts.normal.clone(),
-                                font_size: 54.0,
-                                ..Default::default()
-                            },
-                        ),
-                        ..Default::default()
-                    });
-                });
-        });
+            ..Default::default()
+        },
+        StateScoped(crate::states::GameState::MainMenu),
+    ));
+    if save_data.is_some() {
+        base.add_child(continue_button);
+    }
+    base.add_child(new_game_button);
 }
 
 fn loading_screen<S: States>(
@@ -165,6 +167,14 @@ fn loading_screen<S: States>(
         StateScoped(state.clone()),
     ));
 
+    let loading_button = commands.spawn_button(
+        state.clone(),
+        "Loading...",
+        None,
+        fonts.normal.clone(),
+        ui_assets.panel.clone(),
+    );
+
     commands
         .spawn((
             NodeBundle {
@@ -179,40 +189,70 @@ fn loading_screen<S: States>(
             },
             StateScoped(state.clone()),
         ))
-        .with_children(|parent| {
-            parent
-                .spawn((
-                    ButtonBundle {
-                        style: Style {
-                            padding: UiRect::all(Val::Px(16.0)),
-                            align_items: AlignItems::Center,
-                            justify_content: JustifyContent::Center,
-                            ..Default::default()
-                        },
-                        image: UiImage {
-                            texture: ui_assets.panel.clone(),
-                            color: BASE_BUTTON_COLOR,
-                            ..Default::default()
-                        },
+        .add_child(loading_button);
+}
+
+trait MenuCommandsExt {
+    fn spawn_button<S: States>(
+        &mut self,
+        state: S,
+        button_text: impl Into<String>,
+        system_name: Option<&'static str>,
+        font: Handle<Font>,
+        texture: Handle<Image>,
+    ) -> Entity;
+}
+
+impl MenuCommandsExt for Commands<'_, '_> {
+    fn spawn_button<S: States>(
+        &mut self,
+        state: S,
+        button_text: impl Into<String>,
+        system_name: Option<&'static str>,
+        font: Handle<Font>,
+        texture: Handle<Image>,
+    ) -> Entity {
+        let text_id = self
+            .spawn(TextBundle {
+                text: Text::from_section(
+                    button_text,
+                    TextStyle {
+                        font,
+                        font_size: 54.0,
                         ..Default::default()
                     },
-                    ImageScaleMode::Sliced(TextureSlicer {
-                        border: BorderRect::square(16.0),
-                        ..Default::default()
-                    }),
-                ))
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text::from_section(
-                            "Loading...",
-                            TextStyle {
-                                font: fonts.normal.clone(),
-                                font_size: 72.0,
-                                ..Default::default()
-                            },
-                        ),
-                        ..Default::default()
-                    });
-                });
-        });
+                ),
+                ..Default::default()
+            })
+            .id();
+        let mut button = self.spawn((
+            ButtonBundle {
+                style: Style {
+                    padding: UiRect::all(Val::Px(16.0)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..Default::default()
+                },
+                image: UiImage {
+                    color: BASE_BUTTON_COLOR,
+                    texture,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ImageScaleMode::Sliced(TextureSlicer {
+                border: BorderRect::square(16.0),
+                ..Default::default()
+            }),
+            StateScoped(state),
+        ));
+
+        if let Some(system_name) = system_name {
+            button.insert(ButtonSystem(system_name));
+        }
+
+        button.add_child(text_id);
+
+        return button.id();
+    }
 }

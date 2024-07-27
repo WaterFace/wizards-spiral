@@ -44,10 +44,7 @@ fn load_data(mut commands: Commands, pkv_store: Res<PkvStore>) {
         }
     };
 
-    let (player_skills, cycle_counter) = save_data.to_resources();
-
-    commands.insert_resource(player_skills);
-    commands.insert_resource(cycle_counter);
+    commands.insert_resource(save_data);
 }
 
 pub fn save_data(
@@ -78,7 +75,7 @@ pub fn save_data(
     }
 }
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, Resource, serde::Deserialize, serde::Serialize)]
 pub struct SaveData {
     pub cycles: u64,
 
