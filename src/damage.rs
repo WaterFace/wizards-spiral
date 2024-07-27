@@ -8,6 +8,7 @@ impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<MeleeAttackEvent>()
             .add_event::<DamageEvent>()
+            .add_event::<DamageBlockedEvent>()
             .add_systems(
                 Update,
                 (
@@ -27,8 +28,15 @@ pub struct MeleeAttackEvent {
 }
 
 #[derive(Debug, Clone, Event)]
+pub struct DamageBlockedEvent {
+    // pub damage: f32,
+}
+
+#[derive(Debug, Clone, Event)]
 pub enum DamageEvent {
+    /// Damage dealt to the player
     Player { damage: f32 },
+    /// Damage dealt to the specified enemy
     Enemy { entity: Entity, damage: f32 },
 }
 
@@ -37,14 +45,24 @@ fn handle_damage_events(
     mut enemy_query: Query<&mut crate::enemy::EnemyHealth>,
     player_skills: Res<crate::skills::PlayerSkills>,
     mut enemy_death_events: EventWriter<crate::enemy::EnemyDeathEvent>,
+    mut damage_blocked_events: EventWriter<DamageBlockedEvent>,
     mut player_health: ResMut<crate::player::PlayerHealth>,
+    mut rng: ResMut<crate::rand::GlobalRng>,
 ) {
+    use rand::Rng as _;
     for ev in damage_events.read() {
         match ev {
             DamageEvent::Player { damage } => {
-                player_health.current -= damage * player_skills.damage_taken();
-                if player_health.current <= 0.0 {
-                    player_health.dead = true;
+                let blocked = rng.as_mut().gen_bool(player_skills.block_chance() as f64);
+                if blocked {
+                    damage_blocked_events.send(DamageBlockedEvent { 
+                        // damage: *damage 
+                    });
+                } else {
+                    player_health.current -= damage * player_skills.damage_taken();
+                    if player_health.current <= 0.0 {
+                        player_health.dead = true;
+                    }
                 }
             }
             DamageEvent::Enemy { entity, damage } => {

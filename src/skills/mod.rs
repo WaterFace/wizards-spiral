@@ -77,6 +77,7 @@ fn send_xp_events(
     mut writer: EventWriter<SkillXpEvent>,
     mut damage_events: EventReader<crate::damage::DamageEvent>,
     mut melee_attack_events: EventReader<crate::damage::MeleeAttackEvent>,
+    mut damage_blocked_events: EventReader<crate::damage::DamageBlockedEvent>,
     mut projectile_reflected_event: EventReader<crate::projectiles::ProjectileReflectEvent>,
 ) {
     // Damage events / Armor skill
@@ -99,6 +100,15 @@ fn send_xp_events(
             xp: 1.0,
         });
     }
+
+    // Attacks blocked / Shield skill
+    for crate::damage::DamageBlockedEvent {} in damage_blocked_events.read() {
+        writer.send(SkillXpEvent {
+            skill: Skill::Shield,
+            xp: 1.0,
+        });
+    }
+
     // Projectile reflected / Mirror skill
     for crate::projectiles::ProjectileReflectEvent { .. } in projectile_reflected_event.read() {
         writer.send(SkillXpEvent {
