@@ -11,6 +11,7 @@ mod input;
 mod menus;
 mod physics;
 mod player;
+mod projectiles;
 mod rand;
 mod room;
 mod save_data;
@@ -44,5 +45,6 @@ fn main() {
         .add_plugins(skills::SkillsPlugin)
         .add_plugins(cycles::CyclePlugin)
         .add_plugins(healthbars::HealthbarsPlugin)
+        .add_plugins(projectiles::ProjectilesPlugin)
         .run();
 }
