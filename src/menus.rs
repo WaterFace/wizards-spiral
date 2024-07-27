@@ -55,11 +55,8 @@ pub struct MainMenuSystems {
 #[derive(Debug, Default, Component)]
 struct ButtonSystem(&'static str);
 
-fn play(mut change_room: EventWriter<crate::room::ChangeRoom>) {
-    change_room.send(crate::room::ChangeRoom {
-        next_room_name: "Lovely Cottage".to_string(),
-        coming_from: None,
-    });
+fn play(mut next_state: ResMut<NextState<crate::states::GameState>>) {
+    next_state.set(crate::states::GameState::RestartCycle);
 }
 
 fn process_button_interactions(

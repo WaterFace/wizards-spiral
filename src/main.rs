@@ -41,5 +41,6 @@ fn main() {
         .add_plugins(menus::MenusPlugin)
         .add_plugins(camera::CameraPlugin)
         .add_plugins(skills::SkillsPlugin)
+        .add_plugins(cycles::CyclePlugin)
         .run();
 }

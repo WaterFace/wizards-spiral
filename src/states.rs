@@ -17,6 +17,7 @@ pub enum GameState {
     MainMenu,
     InGame,
     RoomTransition,
+    RestartCycle,
 }
 
 pub struct StatesPlugin;

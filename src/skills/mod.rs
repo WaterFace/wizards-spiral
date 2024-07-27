@@ -11,8 +11,6 @@ impl Plugin for SkillsPlugin {
         app.add_event::<LevelUpEvent>()
             .add_event::<SkillUnlockedEvent>()
             .add_event::<SkillXpEvent>()
-            //  TEMPORARY!!!
-            .init_resource::<PlayerSkills>()
             .add_systems(
                 Update,
                 (send_levelup_events, process_unlock_events)

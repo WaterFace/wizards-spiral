@@ -34,6 +34,7 @@ pub struct Player;
 pub struct PlayerHealth {
     pub current: f32,
     pub maximum: f32,
+    pub dead: bool,
 }
 
 impl Default for PlayerHealth {
@@ -41,6 +42,7 @@ impl Default for PlayerHealth {
         PlayerHealth {
             current: 100.0,
             maximum: 100.0,
+            dead: false,
         }
     }
 }

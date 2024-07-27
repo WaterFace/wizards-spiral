@@ -1,12 +1,19 @@
 use bevy::prelude::*;
-use bevy_pkv::PkvStore;
+use bevy_pkv::{GetError, PkvStore};
 
 #[derive(Debug, Default)]
 pub struct SaveDataPlugin;
 
 impl Plugin for SaveDataPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(PkvStore::new("Water Face", "Wizard's Spiral"));
+        app.insert_resource(PkvStore::new("Water Face", "Wizard's Spiral"))
+            .add_systems(
+                OnTransition {
+                    entered: crate::states::AppState::InMenu,
+                    exited: crate::states::AppState::RoomLoading,
+                },
+                load_data,
+            );
     }
 }
 
@@ -15,6 +22,10 @@ fn load_data(mut commands: Commands, pkv_store: Res<PkvStore>) {
         Ok(string) => {
             info!("save_data: successfully loaded save string");
             string
+        }
+        Err(GetError::NotFound) => {
+            info!("save_data: no save data found");
+            return;
         }
         Err(e) => {
             warn!("save_data: failed to load save string: {e}");
@@ -39,7 +50,7 @@ fn load_data(mut commands: Commands, pkv_store: Res<PkvStore>) {
     commands.insert_resource(cycle_counter);
 }
 
-fn save_data(
+pub fn save_data(
     mut pkv_store: ResMut<PkvStore>,
     player_skills: Res<crate::skills::PlayerSkills>,
     cycle_counter: Res<crate::cycles::CycleCounter>,

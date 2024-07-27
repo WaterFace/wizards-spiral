@@ -18,7 +18,8 @@ impl Plugin for RoomPlugin {
                 Update,
                 events::handle_change_room.run_if(
                     in_state(crate::states::GameState::InGame)
-                        .or_else(in_state(crate::states::GameState::MainMenu)),
+                        .or_else(in_state(crate::states::GameState::MainMenu))
+                        .or_else(in_state(crate::states::GameState::RestartCycle)),
                 ),
             )
             .add_systems(
