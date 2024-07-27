@@ -120,32 +120,45 @@ fn update_next_room_text(
 fn room_text(
     mut commands: Commands,
     current_room: Res<crate::room::CurrentRoom>,
-    camera_query: Query<Entity, With<crate::camera::GameCamera>>,
+    camera_query: Query<(Entity, &OrthographicProjection), With<crate::camera::GameCamera>>,
+    cycle_counter: Res<crate::cycles::CycleCounter>,
+    mut texts_to_spawn: Local<Vec<String>>,
 ) {
-    let Ok(camera_entity) = camera_query.get_single() else {
+    let Ok((camera_entity, ortho_proj)) = camera_query.get_single() else {
         warn!("room_text: can't find game camera");
         return;
     };
 
-    let room_name = &current_room.info.name;
-    let text = commands
-        .spawn((
-            SpatialBundle {
-                ..Default::default()
-            },
-            TextMarker {
-                fancy: true,
-                font_size: 48.0,
-                text: room_name.clone(),
-                ..Default::default()
-            },
-            FloatingText {
-                timer: Timer::from_seconds(3.5, TimerMode::Once),
-                velocity: Vec2::ZERO,
-            },
-        ))
-        .id();
-    commands.entity(camera_entity).add_child(text);
+    texts_to_spawn.push(current_room.info.name.clone());
+    if current_room.info.name == "Lovely Cottage" {
+        texts_to_spawn.push(format!("Cycle {}", cycle_counter.count + 1));
+    }
+
+    let n = texts_to_spawn.len();
+    let camera_rect = ortho_proj.area;
+    for (i, text) in texts_to_spawn.drain(..).enumerate() {
+        let t = (i + 1) as f32 / (n + 1) as f32;
+        let y = camera_rect.max.y * (1.0 - t) + camera_rect.min.y * t;
+        let text_entity = commands
+            .spawn((
+                SpatialBundle {
+                    transform: Transform::from_xyz(0.0, y, 0.0),
+                    ..Default::default()
+                },
+                TextMarker {
+                    fancy: i == 0,
+                    font_size: 48.0,
+                    text,
+                    ..Default::default()
+                },
+                FloatingText {
+                    timer: Timer::from_seconds(3.5, TimerMode::Once),
+                    velocity: Vec2::ZERO,
+                },
+            ))
+            .id();
+        commands.entity(camera_entity).add_child(text_entity);
+    }
 }
 
 fn floating_text(
