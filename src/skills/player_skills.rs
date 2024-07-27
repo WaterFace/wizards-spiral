@@ -272,7 +272,7 @@ impl PlayerSkills {
         }
     }
 
-    /// mass divides the magnitude of incoming knockback, and multiplies the outgoing magnitude
+    /// mass increases maximum health, divides the magnitude of incoming knockback, and multiplies the outgoing magnitude
     pub fn mass(&self) -> f32 {
         1.0 + (self.get_f32(Skill::Pants) / 10.0).sqrt()
     }

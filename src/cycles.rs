@@ -73,6 +73,16 @@ fn reset_init_global_state(
     if cycle_counter.is_none() {
         commands.insert_resource(CycleCounter::default());
     }
+    // reset/initialize player health
+    {
+        if let Some(player_skills) = player_skills.as_ref() {
+            commands.insert_resource(crate::player::PlayerHealth::new(
+                100.0 * player_skills.mass(),
+            ));
+        } else {
+            commands.insert_resource(crate::player::PlayerHealth::default())
+        }
+    }
 
     // merge the previous cycle's progress into the persistent storage
     if let Some(mut player_skills) = player_skills {
@@ -87,7 +97,4 @@ fn reset_init_global_state(
     } else {
         commands.insert_resource(crate::room::PersistentRoomState::default());
     }
-
-    // reset/initialize player health
-    commands.insert_resource(crate::player::PlayerHealth::default());
 }

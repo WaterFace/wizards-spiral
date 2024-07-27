@@ -41,13 +41,19 @@ pub struct PlayerHealth {
     pub dead: bool,
 }
 
+impl PlayerHealth {
+    pub fn new(maximum: f32) -> Self {
+        PlayerHealth {
+            current: maximum,
+            maximum,
+            dead: maximum <= 0.0,
+        }
+    }
+}
+
 impl Default for PlayerHealth {
     fn default() -> Self {
-        PlayerHealth {
-            current: 100.0,
-            maximum: 100.0,
-            dead: false,
-        }
+        PlayerHealth::new(100.0)
     }
 }
 
