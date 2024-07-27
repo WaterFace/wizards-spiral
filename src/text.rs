@@ -43,7 +43,7 @@ fn level_up_text(
     mut events: EventReader<crate::skills::LevelUpEvent>,
 ) {
     const OFFSET: Vec3 = bevy_math::vec3(0.0, 16.0, 0.0);
-    const VELOCITY: Vec2 = bevy_math::vec2(0.0, 1.0);
+    const VELOCITY: Vec2 = bevy_math::vec2(0.0, 16.0);
     let Ok(player) = player_query.get_single() else {
         warn!("level_up_text: no player or more than one player found");
         return;
