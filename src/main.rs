@@ -18,6 +18,7 @@ mod save_data;
 mod skills;
 mod states;
 mod text;
+mod util;
 
 fn main() {
     let mut app = App::new();

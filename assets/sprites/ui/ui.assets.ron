@@ -11,4 +11,37 @@
         path: "sprites/ui/Title.png",
         sampler: Nearest,
     ),
+
+    "locked_icon": Image (
+        path: "sprites/ui/skills/Locked.png",
+        sampler: Nearest
+    ),
+    "armor_icon": Image (
+        path: "sprites/ui/skills/Armor.png",
+        sampler: Nearest
+    ),
+    "sword_icon": Image (
+        path: "sprites/ui/skills/Sword.png",
+        sampler: Nearest
+    ),
+    "shield_icon": Image (
+        path: "sprites/ui/skills/Shield.png",
+        sampler: Nearest
+    ),
+    "pants_icon": Image (
+        path: "sprites/ui/skills/Pants.png",
+        sampler: Nearest
+    ),
+    "mirror_icon": Image (
+        path: "sprites/ui/skills/Mirror.png",
+        sampler: Nearest
+    ),
+    "healing_icon": Image (
+        path: "sprites/ui/skills/Healing.png",
+        sampler: Nearest
+    ),
+    "speed_icon": Image (
+        path: "sprites/ui/skills/Speed.png",
+        sampler: Nearest
+    ),
 })

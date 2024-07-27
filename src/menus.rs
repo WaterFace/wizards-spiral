@@ -1,6 +1,7 @@
 use bevy::{ecs::system::SystemId, prelude::*, utils::HashMap};
 use bevy_asset_loader::prelude::*;
 use bevy_math::vec2;
+use leafwing_input_manager::prelude::ActionState;
 
 #[derive(Debug, Default)]
 pub struct MenusPlugin;
@@ -9,6 +10,7 @@ impl Plugin for MenusPlugin {
     fn build(&self, app: &mut App) {
         app.enable_state_scoped_entities::<crate::states::GameState>()
             .enable_state_scoped_entities::<crate::states::AppState>()
+            .enable_state_scoped_entities::<crate::states::MenuState>()
             .add_loading_state(
                 LoadingState::new(crate::states::AppState::CoreLoading)
                     .continue_to_state(crate::states::AppState::RoomLoading)
@@ -27,7 +29,12 @@ impl Plugin for MenusPlugin {
                 (|| crate::states::GameState::RoomTransition).pipe(loading_screen),
             )
             .add_systems(OnEnter(crate::states::GameState::MainMenu), main_menu)
-            .add_systems(Update, process_button_interactions);
+            .add_systems(Update, process_button_interactions)
+            .add_systems(OnEnter(crate::states::MenuState::SkillsMenu), skills_menu)
+            .add_systems(
+                Update,
+                open_close_skills_menu.run_if(in_state(crate::states::GameState::InGame)),
+            );
 
         // Menu systems
         let continue_game_id = app.register_system(continue_game);
@@ -69,6 +76,23 @@ pub struct UiAssets {
 
     #[asset(key = "title")]
     pub title: Handle<Image>,
+
+    #[asset(key = "locked_icon")]
+    pub locked_icon: Handle<Image>,
+    #[asset(key = "armor_icon")]
+    pub armor_icon: Handle<Image>,
+    #[asset(key = "sword_icon")]
+    pub sword_icon: Handle<Image>,
+    #[asset(key = "shield_icon")]
+    pub shield_icon: Handle<Image>,
+    #[asset(key = "pants_icon")]
+    pub pants_icon: Handle<Image>,
+    #[asset(key = "mirror_icon")]
+    pub mirror_icon: Handle<Image>,
+    #[asset(key = "healing_icon")]
+    pub healing_icon: Handle<Image>,
+    #[asset(key = "speed_icon")]
+    pub speed_icon: Handle<Image>,
 }
 
 #[derive(Debug, Resource)]
@@ -230,6 +254,121 @@ fn loading_screen<S: States>(
             StateScoped(state.clone()),
         ))
         .add_child(loading_button);
+}
+
+fn open_close_skills_menu(
+    menu_actions: Res<ActionState<crate::input::MenuAction>>,
+    current_state: Res<State<crate::states::MenuState>>,
+    mut next_state: ResMut<NextState<crate::states::MenuState>>,
+) {
+    match current_state.get() {
+        &crate::states::MenuState::None => {
+            if menu_actions.pressed(&crate::input::MenuAction::SkillsMenu) {
+                info!("open_close_skills_menu: opening skills menu");
+                next_state.set(crate::states::MenuState::SkillsMenu);
+            }
+        }
+        &crate::states::MenuState::SkillsMenu => {
+            if menu_actions.released(&crate::input::MenuAction::SkillsMenu) {
+                info!("open_close_skills_menu: closing skills menu");
+                next_state.set(crate::states::MenuState::None);
+            }
+        }
+    }
+}
+
+fn skills_menu(
+    mut commands: Commands,
+    player_skills: Res<crate::skills::PlayerSkills>,
+    fonts: Res<crate::text::Fonts>,
+    ui_assets: Res<UiAssets>,
+) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Vw(50.0),
+                    height: Val::Vh(75.0),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    flex_direction: FlexDirection::Column,
+                    align_self: AlignSelf::Center,
+                    justify_self: JustifySelf::Center,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            StateScoped(crate::states::MenuState::SkillsMenu),
+        ))
+        .with_children(|parent| {
+            for skill in crate::skills::Skill::iter() {
+                let skill_icon = match skill {
+                    crate::skills::Skill::Armor => &ui_assets.armor_icon,
+                    crate::skills::Skill::Sword => &ui_assets.sword_icon,
+                    crate::skills::Skill::Shield => &ui_assets.shield_icon,
+                    crate::skills::Skill::Pants => &ui_assets.pants_icon,
+                    crate::skills::Skill::Mirror => &ui_assets.mirror_icon,
+                    crate::skills::Skill::Healing => &ui_assets.healing_icon,
+                    crate::skills::Skill::Speed => &ui_assets.speed_icon,
+                };
+                parent
+                    .spawn((
+                        ImageBundle {
+                            style: Style {
+                                padding: UiRect::all(Val::Px(16.0)),
+                                width: Val::Percent(100.0),
+                                height: Val::Vh(10.0),
+                                flex_wrap: FlexWrap::Wrap,
+                                flex_direction: FlexDirection::Row,
+                                justify_content: JustifyContent::Start,
+                                align_content: AlignContent::Center,
+                                ..Default::default()
+                            },
+                            image: UiImage {
+                                texture: ui_assets.panel.clone(),
+                                color: bevy::color::palettes::tailwind::GRAY_500.into(),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        ImageScaleMode::Sliced(TextureSlicer {
+                            border: BorderRect::square(16.0),
+                            ..Default::default()
+                        }),
+                    ))
+                    .with_children(|parent| {
+                        let icon = if player_skills.get_unlocked(skill) {
+                            skill_icon.clone()
+                        } else {
+                            ui_assets.locked_icon.clone()
+                        };
+                        parent.spawn(ImageBundle {
+                            image: icon.into(),
+                            background_color: bevy::color::palettes::tailwind::GRAY_800.into(),
+                            ..Default::default()
+                        });
+                        let text_sections = crate::util::highlight_text(
+                            &if player_skills.get_unlocked(skill) {
+                                player_skills.description(skill)
+                            } else {
+                                "???".to_string()
+                            },
+                            bevy::color::palettes::basic::WHITE.into(),
+                            HOVERED_BUTTON_COLOR,
+                            24.0,
+                            fonts.normal.clone(),
+                        );
+                        parent.spawn(TextBundle {
+                            style: Style {
+                                margin: UiRect::all(Val::Px(16.0)),
+                                ..Default::default()
+                            },
+                            text: Text::from_sections(text_sections),
+                            ..Default::default()
+                        });
+                    });
+            }
+        });
 }
 
 trait MenuCommandsExt {

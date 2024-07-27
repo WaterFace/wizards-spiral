@@ -286,4 +286,65 @@ impl PlayerSkills {
     pub fn speed(&self) -> f32 {
         1.0 + f32::log2(self.get_f32(Skill::Speed) + 1.0) / f32::log2(25.0)
     }
+
+    /// returns a string describing what the given skill does, including its current effects.
+    ///
+    /// return value is formatted for use with util::highlight_text
+    pub fn description(&self, skill: Skill) -> String {
+        match skill {
+            Skill::Armor => {
+                format!(
+                    "Trusty Armor - Level *{}*\nReduces damage taken by *{}%*",
+                    self.get(Skill::Armor),
+                    fraction_to_percent(1.0 - self.damage_taken())
+                )
+            }
+            Skill::Sword => {
+                format!(
+                    "Soleil's Sword - Level *{}*\nAttacks deal *{}* damage",
+                    self.get(Skill::Sword),
+                    self.attack_damage() as u64,
+                )
+            }
+            Skill::Shield => {
+                format!(
+                    "Prince's Shield - Level *{}*\nBlock *{}%* of attacks",
+                    self.get(Skill::Shield),
+                    fraction_to_percent(self.block_chance()),
+                )
+            }
+            Skill::Pants => {
+                format!(
+                    "Wulf's Pants - Level *{}*\nIncreases maximum health to *{}%* and *improves knockback*",
+                    self.get(Skill::Pants),
+                    fraction_to_percent(self.mass()),
+                )
+            }
+            Skill::Mirror => {
+                format!(
+                    "Mirror Witch's Armor Polish - Level *{}*\nReflects *{}%* of projectiles",
+                    self.get(Skill::Mirror),
+                    fraction_to_percent(self.reflect_chance()),
+                )
+            }
+            Skill::Healing => {
+                format!(
+                    "Amanon's Tears - Level *{}*\nRestores *{}%* health every 3 seconds",
+                    self.get(Skill::Healing),
+                    fraction_to_percent(self.healing()),
+                )
+            }
+            Skill::Speed => {
+                format!(
+                    "Artist's Boots - Level *{}*\nMove *{}%* faster",
+                    self.get(Skill::Speed),
+                    fraction_to_percent(self.speed()),
+                )
+            }
+        }
+    }
+}
+
+fn fraction_to_percent(x: f32) -> u64 {
+    (x * 100.0) as u64
 }
