@@ -9,7 +9,8 @@ pub struct SkillsPlugin;
 impl Plugin for SkillsPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<LevelUpEvent>()
-            .add_event::<SkillUnlockedEvent>()
+            // setup unlocked events to be manually cleared so they don't get lost
+            .init_resource::<Events<SkillUnlockedEvent>>()
             .add_event::<SkillXpEvent>()
             .add_systems(
                 Update,
@@ -52,8 +53,17 @@ fn send_levelup_events(
 
 fn process_unlock_events(
     mut player_skills: ResMut<PlayerSkills>,
-    mut reader: EventReader<SkillUnlockedEvent>,
+    mut events: ResMut<Events<SkillUnlockedEvent>>,
 ) {
+    // do it this way so we get all such events, regardless of when this runs vs when they're sent
+    for SkillUnlockedEvent { skill } in events.drain() {
+        if !player_skills.get_unlocked(skill) {
+            info!("unlocked skill: {}", skill);
+        }
+        player_skills.unlock_skill(skill);
+    }
+}
+
 fn process_xp_events(
     mut player_skills: ResMut<PlayerSkills>,
     mut events: EventReader<SkillXpEvent>,
