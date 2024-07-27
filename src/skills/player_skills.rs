@@ -136,6 +136,7 @@ impl PlayerSkills {
             }
             if self.subtract_xp(skill, xp_needed) {
                 // successfully leveled up
+                self.delta_levels[skill] += 1;
                 self.levelups[skill] += 1;
             } else {
                 return;
