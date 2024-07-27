@@ -256,12 +256,20 @@ impl PlayerSkills {
 
     /// the chance an incoming attack will be blocked. returns a value between 0 and 1
     pub fn block_chance(&self) -> f32 {
-        0.65 - 500.0 / (self.get_f32(Skill::Shield).powi(2) + 1000.0)
+        if self.get_unlocked(Skill::Shield) {
+            0.65 - 500.0 / (self.get_f32(Skill::Shield).powi(2) + 1000.0)
+        } else {
+            0.0
+        }
     }
 
     /// the chance the player will reflect a projectile attack
     pub fn reflect_chance(&self) -> f32 {
-        0.75 - 700.0 / (self.get_f32(Skill::Mirror).powi(2) + 1000.0)
+        if self.get_unlocked(Skill::Mirror) {
+            0.75 - 700.0 / (self.get_f32(Skill::Mirror).powi(2) + 1000.0)
+        } else {
+            0.0
+        }
     }
 
     /// mass divides the magnitude of incoming knockback, and multiplies the outgoing magnitude
