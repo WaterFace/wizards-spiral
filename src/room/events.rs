@@ -14,6 +14,7 @@ pub fn handle_change_room(
     mut reader: EventReader<ChangeRoom>,
     rooms: Res<super::Rooms>,
     enemy_stats: Res<Assets<crate::enemy::EnemyStats>>,
+    boss_stats: Res<Assets<crate::enemy::BossStats>>,
     mut next_state: ResMut<NextState<crate::states::GameState>>,
 ) {
     // Only take the first event per frame, dropping the rest
@@ -47,9 +48,24 @@ pub fn handle_change_room(
         panic!();
     };
 
+    let boss_stats = match &assets.boss_stats {
+        None => {
+            // no boss in this room
+            None
+        }
+        Some(handle) => {
+            let Some(boss_stats) = boss_stats.get(handle) else {
+                error!("No BossStats found with handle {:?}", handle);
+                panic!();
+            };
+            Some(boss_stats.clone())
+        }
+    };
+
     commands.insert_resource(crate::room::CurrentRoom {
         info: info.clone(),
         assets: assets.clone(),
+        boss_stats,
         melee_enemy_stats: melee_enemy_stats.clone(),
         ranged_enemy_stats: ranged_enemy_stats.clone(),
     });

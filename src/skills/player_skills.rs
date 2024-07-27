@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use super::LevelUpEvent;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Reflect, serde::Deserialize)]
 pub enum Skill {
     Armor,
     Sword,

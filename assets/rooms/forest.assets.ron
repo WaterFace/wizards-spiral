@@ -10,17 +10,19 @@
         sampler: Nearest
     ),
 
+    "boss_stats": File (path: "enemies/forest/knight_captain.boss.ron"),
+
     "melee_enemy_texture": Image(
         path: "sprites/forest/EnemyKnight.png",
         sampler: Nearest
     ),
-    "melee_enemy_stats": File(path:"enemies/knight.enemy.ron"),
+    "melee_enemy_stats": File(path:"enemies/forest/knight.enemy.ron"),
 
     "ranged_enemy_texture": Image(
         path: "sprites/forest/EnemyArcher.png",
         sampler: Nearest
     ),
-    "ranged_enemy_stats": File(path:"enemies/archer.enemy.ron"),
+    "ranged_enemy_stats": File(path:"enemies/forest/archer.enemy.ron"),
     "projectile": Image(
         path: "sprites/forest/Arrow.png",
         sampler: Nearest,

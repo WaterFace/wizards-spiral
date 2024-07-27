@@ -1,6 +1,7 @@
 (
     name: "Lovely Cottage",
     rect: Rect(min: Vec2(-150.0, -150.0), max: Vec2(150.0, 150.0)),
+    boss: false,
     num_melee_enemies: 0,
     num_ranged_enemies: 0,
     num_obstacles: 0,

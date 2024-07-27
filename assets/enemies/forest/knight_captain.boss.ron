@@ -1,0 +1,16 @@
+BossStats(
+    name: "Knight Captain Alessia",
+    skill_unlocked: Some(Sword),
+    scale: 2.5,
+    stats: EnemyStats(
+        enemy_type: Melee(
+            melee_damage: 10.0,
+        ),
+        health: 100.0,
+        speed: 65.0,
+        mass: 5.0,
+        alert_radius: 350.0,
+        chase_radius: 400.0,
+        desired_distance: 0.0,
+    )
+)

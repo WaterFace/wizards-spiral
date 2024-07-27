@@ -93,6 +93,7 @@ fn detect_wall_collisions(
 #[derive(Debug, Resource)]
 pub struct CurrentRoom {
     pub info: RoomInfo,
+    pub boss_stats: Option<crate::enemy::BossStats>,
     pub melee_enemy_stats: crate::enemy::EnemyStats,
     pub ranged_enemy_stats: crate::enemy::EnemyStats,
     pub assets: RoomAssets,
@@ -109,6 +110,9 @@ pub struct RoomAssets {
     pub background_texture: Handle<Image>,
     #[asset(key = "obstacle_texture")]
     pub obstacle_texture: Handle<Image>,
+
+    #[asset(key = "boss_stats", optional)]
+    pub boss_stats: Option<Handle<crate::enemy::BossStats>>,
 
     #[asset(key = "melee_enemy_texture")]
     pub melee_enemy_texture: Handle<Image>,
@@ -127,6 +131,7 @@ pub struct RoomAssets {
 pub struct RoomInfo {
     pub name: String,
     pub rect: Rect,
+    pub boss: bool,
     pub num_melee_enemies: usize,
     pub num_ranged_enemies: usize,
     pub num_obstacles: usize,
@@ -198,6 +203,7 @@ pub enum SpawnerType {
     #[default]
     Melee,
     Ranged,
+    Boss,
 }
 
 /// Stores information about a spawner so it will behave consistently during a cycle

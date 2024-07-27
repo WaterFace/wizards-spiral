@@ -1,0 +1,16 @@
+BossStats(
+    name: "Screech, Royal Goblin Vanguard",
+    skill_unlocked: Some(Mirror),
+    scale: 1.0,
+    stats: EnemyStats(
+        enemy_type: Melee(
+            melee_damage: 2.0,
+        ),
+        health: 450.0,
+        speed: 90.0,
+        mass: 0.2,
+        alert_radius: 200.0,
+        chase_radius: 250.0,
+        desired_distance: 0.0,
+    )
+)

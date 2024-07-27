@@ -1,0 +1,30 @@
+({
+    "info": File(path: "rooms/frozenlake.info.ron"),
+
+    "background_texture": Image(
+        path: "sprites/frozenlake/FrozenLakeBackground.png",
+        sampler: Nearest
+    ),
+    "obstacle_texture": Image(
+        path: "sprites/frozenlake/FrozenLakeObstacle.png",
+        sampler: Nearest
+    ),
+
+    "boss_stats": File (path: "enemies/frozenlake/screech.boss.ron"),
+
+    "melee_enemy_texture": Image(
+        path: "sprites/frozenlake/Goblin.png",
+        sampler: Nearest
+    ),
+    "melee_enemy_stats": File(path:"enemies/frozenlake/goblin.enemy.ron"),
+
+    "ranged_enemy_texture": Image(
+        path: "sprites/frozenlake/Snowman.png",
+        sampler: Nearest
+    ),
+    "ranged_enemy_stats": File(path:"enemies/frozenlake/snowman.enemy.ron"),
+    "projectile": Image(
+        path: "sprites/frozenlake/Snowball.png",
+        sampler: Nearest,
+    )
+})

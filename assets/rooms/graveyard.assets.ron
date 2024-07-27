@@ -10,17 +10,19 @@
         sampler: Nearest
     ),
 
+    "boss_stats": File(path: "enemies/graveyard/uld.boss.ron"),
+
     "melee_enemy_texture": Image(
         path: "sprites/graveyard/Ghoul.png",
         sampler: Nearest
     ),
-    "melee_enemy_stats": File(path:"enemies/ghoul.enemy.ron"),
+    "melee_enemy_stats": File(path:"enemies/graveyard/ghoul.enemy.ron"),
 
     "ranged_enemy_texture": Image(
         path: "sprites/graveyard/Necromancer.png",
         sampler: Nearest
     ),
-    "ranged_enemy_stats": File(path:"enemies/necromancer.enemy.ron"),
+    "ranged_enemy_stats": File(path:"enemies/graveyard/necromancer.enemy.ron"),
     "projectile": Image(
         path: "sprites/graveyard/NecromanticEnergy.png",
         sampler: Nearest,

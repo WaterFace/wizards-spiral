@@ -3,5 +3,6 @@ RoomsToLoad(
         "rooms/forest.assets.ron",
         "rooms/cottage.assets.ron",
         "rooms/graveyard.assets.ron",
+        "rooms/frozenlake.assets.ron",
     ]
 )

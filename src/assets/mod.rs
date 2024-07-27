@@ -18,6 +18,7 @@ impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
             RonAssetPlugin::<crate::enemy::EnemyStats>::new(&["enemy.ron"]),
+            RonAssetPlugin::<crate::enemy::BossStats>::new(&["boss.ron"]),
             RonAssetPlugin::<crate::room::RoomInfo>::new(&["info.ron"]),
             load_all_room_assets::LoadAllRoomAssetsPlugin,
         ))

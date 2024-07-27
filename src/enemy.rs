@@ -21,6 +21,18 @@ impl Plugin for EnemyPlugin {
 }
 
 #[derive(Debug, Clone, Component, Asset, Reflect, serde::Deserialize)]
+pub struct BossStats {
+    /// The boss's name
+    pub name: String,
+    /// Which skill, if any, is unlocked by defeating this boss
+    pub skill_unlocked: Option<crate::skills::Skill>,
+    /// scalar on the boss's size
+    pub scale: f32,
+    /// the rest of the stats
+    pub stats: EnemyStats,
+}
+
+#[derive(Debug, Clone, Component, Asset, Reflect, serde::Deserialize)]
 pub struct EnemyStats {
     /// Type of enemy; either Melee or Ranged
     pub enemy_type: EnemyType,
@@ -66,6 +78,9 @@ pub enum EnemyType {
 
 #[derive(Debug, Default, Component, Clone, Copy)]
 pub struct Enemy;
+
+#[derive(Debug, Default, Component, Clone, Copy)]
+pub struct Boss;
 
 #[derive(Debug, Event, Clone)]
 pub struct EnemyDeathEvent {

@@ -92,9 +92,16 @@ fn spawn_healthbars(
             Entity,
             Option<&crate::player::Player>,
             Option<&crate::enemy::Enemy>,
+            Option<&crate::enemy::Boss>,
         ),
-        Or<(Added<crate::enemy::Enemy>, Added<crate::player::Player>)>,
+        Or<(
+            Added<crate::enemy::Enemy>,
+            Added<crate::player::Player>,
+            Added<crate::enemy::Boss>,
+        )>,
     >,
+    camera_query: Query<(Entity, &OrthographicProjection), With<crate::camera::GameCamera>>,
+    current_room: Res<crate::room::CurrentRoom>,
     healthbar_assets: Res<HealthbarAssets>,
     image_assets: Res<Assets<Image>>,
 ) {
@@ -103,7 +110,7 @@ fn spawn_healthbars(
         .expect("This asset is definitely loaded at this point")
         .size_f32();
     const OFFSET: Vec3 = vec3(0.0, -18.0, 10.0);
-    for (entity, player, enemy) in query.iter() {
+    for (entity, player, enemy, boss) in query.iter() {
         let healthbar_component = match (player, enemy) {
             (None, None) => unreachable!(),
             (Some(_), None) => Healthbar::Player,
@@ -115,48 +122,99 @@ fn spawn_healthbars(
                 continue;
             }
         };
-        let root = commands
-            .spawn((
-                SpatialBundle {
-                    transform: Transform::from_translation(OFFSET),
-                    ..Default::default()
-                },
-                HealthbarRoot,
-                healthbar_component.clone(),
-                // We don't really need it in this case but it makes the update_healthbars system simpler
-                HealthbarSpriteRect {
-                    rect: Rect::from_corners(Vec2::ZERO, healthbar_size),
-                },
-            ))
-            .with_children(|parent| {
-                parent.spawn(SpriteBundle {
-                    transform: Transform::from_xyz(-healthbar_size.x / 2.0, 0.0, 0.0),
-                    texture: healthbar_assets.healthbar_empty.clone(),
-                    sprite: Sprite {
-                        anchor: bevy::sprite::Anchor::CenterLeft,
+        let root = if boss.is_some() {
+            let Ok((camera_entity, ortho_proj)) = camera_query.get_single() else {
+                error!("spawn_healthbars: failed to get single game camera");
+                continue;
+            };
+            let camera_rect = ortho_proj.area;
+            let boss_name = current_room
+                .boss_stats
+                .as_ref()
+                .expect(
+                    "If we're spawning a healthbar for a boss, the current room must have a boss",
+                )
+                .name
+                .clone();
+            let boss_healthbar_scale = vec3(7.5, 7.5, 1.0);
+            commands
+                .spawn((
+                    SpatialBundle {
+                        transform: Transform::from_translation(vec3(
+                            0.0,
+                            -camera_rect.half_size().y * 0.75,
+                            500.0,
+                        ))
+                        .with_scale(boss_healthbar_scale),
                         ..Default::default()
                     },
-                    ..Default::default()
-                });
-
-                parent.spawn((
-                    SpriteBundle {
-                        transform: Transform::from_xyz(-healthbar_size.x / 2.0, 0.0, 1.0),
-                        texture: healthbar_assets.healthbar_full.clone(),
-                        sprite: Sprite {
-                            anchor: bevy::sprite::Anchor::CenterLeft,
-                            rect: Some(Rect::from_corners(Vec2::ZERO, healthbar_size)),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
+                    HealthbarRoot,
                     healthbar_component.clone(),
+                    // We don't really need it in this case but it makes the update_healthbars system simpler
                     HealthbarSpriteRect {
                         rect: Rect::from_corners(Vec2::ZERO, healthbar_size),
                     },
-                ));
-            })
-            .id();
-        commands.entity(entity).add_child(root);
+                ))
+                .with_children(|parent| {
+                    parent.spawn((
+                        SpatialBundle {
+                            transform: Transform::from_scale(1.0 / boss_healthbar_scale),
+                            ..Default::default()
+                        },
+                        crate::text::TextMarker {
+                            font_size: 18.0,
+                            text: boss_name,
+                            ..Default::default()
+                        },
+                    ));
+                })
+                .set_parent(camera_entity)
+                .id()
+        } else {
+            commands
+                .spawn((
+                    SpatialBundle {
+                        transform: Transform::from_translation(OFFSET),
+                        ..Default::default()
+                    },
+                    HealthbarRoot,
+                    healthbar_component.clone(),
+                    // We don't really need it in this case but it makes the update_healthbars system simpler
+                    HealthbarSpriteRect {
+                        rect: Rect::from_corners(Vec2::ZERO, healthbar_size),
+                    },
+                ))
+                .set_parent(entity)
+                .id()
+        };
+
+        commands.entity(root).with_children(|parent| {
+            parent.spawn(SpriteBundle {
+                transform: Transform::from_xyz(-healthbar_size.x / 2.0, 0.0, 0.0),
+                texture: healthbar_assets.healthbar_empty.clone(),
+                sprite: Sprite {
+                    anchor: bevy::sprite::Anchor::CenterLeft,
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
+
+            parent.spawn((
+                SpriteBundle {
+                    transform: Transform::from_xyz(-healthbar_size.x / 2.0, 0.0, 1.0),
+                    texture: healthbar_assets.healthbar_full.clone(),
+                    sprite: Sprite {
+                        anchor: bevy::sprite::Anchor::CenterLeft,
+                        rect: Some(Rect::from_corners(Vec2::ZERO, healthbar_size)),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                healthbar_component.clone(),
+                HealthbarSpriteRect {
+                    rect: Rect::from_corners(Vec2::ZERO, healthbar_size),
+                },
+            ));
+        });
     }
 }

@@ -1,0 +1,21 @@
+BossStats(
+    name: "Uld, The Undying",
+    skill_unlocked: Some(Speed),
+    scale: 1.5,
+    stats: EnemyStats(
+        enemy_type: Ranged(
+            melee_damage: 3.5,
+            projectile_damage: 40.0,
+            projectile_speed: 80.0,
+            projectile_lifetime: 30.0,
+            homing: true,
+            delay: 5,
+        ),
+        health: 350.0,
+        speed: 50.0,
+        mass: 2.0,
+        alert_radius: 350.0,
+        chase_radius: 500.0,
+        desired_distance: 350.0,
+    )
+)

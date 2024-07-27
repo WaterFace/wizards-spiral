@@ -30,26 +30,45 @@ pub fn spawn_enemies(
 
         info!("spawning enemy at {:?}", transform.translation);
 
-        let (texture, stats) = match spawner.ty {
+        let (texture, stats, boss_stats) = match spawner.ty {
             super::SpawnerType::Melee => (
                 current_room.assets.melee_enemy_texture.clone(),
                 &current_room.melee_enemy_stats,
+                None,
             ),
             super::SpawnerType::Ranged => (
                 current_room.assets.ranged_enemy_texture.clone(),
                 &current_room.ranged_enemy_stats,
+                None,
             ),
+            super::SpawnerType::Boss => {
+                let Some(boss_stats) = &current_room.boss_stats else {
+                    error!("spawn_enemies: room contains a boss-variant spawner, but this room doesn't have a boss defined");
+                    continue;
+                };
+                let texture = match boss_stats.stats.enemy_type {
+                    crate::enemy::EnemyType::Melee { .. } => {
+                        current_room.assets.melee_enemy_texture.clone()
+                    }
+                    crate::enemy::EnemyType::Ranged { .. } => {
+                        current_room.assets.ranged_enemy_texture.clone()
+                    }
+                };
+                (texture, &boss_stats.stats, Some(boss_stats.clone()))
+            }
         };
 
-        commands
-            .spawn(SpriteBundle {
-                sprite: Sprite {
-                    custom_size: Some(vec2(32.0, 32.0)),
-                    ..Default::default()
-                },
-                texture,
+        let scale = boss_stats.as_ref().map(|bs| bs.scale).unwrap_or(1.0);
+
+        let mut spawned_enemy = commands.spawn(SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(vec2(32.0, 32.0) * scale),
                 ..Default::default()
-            })
+            },
+            texture,
+            ..Default::default()
+        });
+        spawned_enemy
             .insert((
                 crate::character_controller::CharacterController {
                     acceleration: 10.0,
@@ -61,8 +80,7 @@ pub fn spawn_enemies(
                 crate::enemy::Enemy,
                 crate::enemy::EnemyState::default(),
                 RigidBody::Dynamic,
-                // TODO: make size configurable?
-                Collider::ball(16.0),
+                Collider::ball(16.0 * scale),
                 ColliderMassProperties::Density(0.0),
                 AdditionalMassProperties::MassProperties(MassProperties {
                     mass: 1.0,
@@ -86,6 +104,10 @@ pub fn spawn_enemies(
                         | crate::physics::COLLISION_GROUP_REFLECTED_PROJECTILE,
                 ),
             ));
+
+        if let Some(boss_stats) = boss_stats.as_ref() {
+            spawned_enemy.insert((boss_stats.clone(), crate::enemy::Boss));
+        }
     }
 
     next_state.set(crate::states::GameState::InGame);
@@ -229,19 +251,29 @@ pub fn spawn_room(
 
         let mut this_room_state = super::RoomState::default();
 
+        let num_bosses = if current_room.info.boss { 1 } else { 0 };
+
         // spawners:
         working.clear();
         working.extend(
             spawning_rectangle
                 .interior_dist()
                 .sample_iter(rng.as_mut())
-                .take(current_room.info.num_melee_enemies + current_room.info.num_ranged_enemies),
+                .take(
+                    current_room.info.num_melee_enemies
+                        + current_room.info.num_ranged_enemies
+                        + num_bosses,
+                ),
         );
         for (index, pos) in working.drain(..).enumerate() {
             let ty = if index < current_room.info.num_melee_enemies {
                 super::SpawnerType::Melee
-            } else {
+            } else if index
+                < current_room.info.num_melee_enemies + current_room.info.num_ranged_enemies
+            {
                 super::SpawnerType::Ranged
+            } else {
+                super::SpawnerType::Boss
             };
 
             info!("Placing spawner {index} at {pos:?}");
