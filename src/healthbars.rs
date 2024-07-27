@@ -70,7 +70,7 @@ fn update_healthbars(
         };
 
         if let Some(mut visibility) = visibility {
-            if health_fraction < 1.0 {
+            if health_fraction < 1.0 && health_fraction > 0.0 {
                 *visibility = Visibility::Visible;
             } else {
                 *visibility = Visibility::Hidden;
