@@ -117,6 +117,10 @@ impl PlayerSkills {
         self.stored_xp[skill] + self.delta_xp[skill]
     }
 
+    pub fn get_unlocked(&self, skill: Skill) -> bool {
+        self.unlocked[skill]
+    }
+
     /// Add the given base amount of xp to the given skill, processing level-ups as necessary
     pub fn add_xp(&mut self, skill: Skill, xp: f32) {
         // no xp until a skill is unlocked
