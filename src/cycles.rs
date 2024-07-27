@@ -49,7 +49,13 @@ fn start_game(
     commands.insert_resource(cycle_counter);
 }
 
-fn start_cycle(mut change_room: EventWriter<crate::room::ChangeRoom>) {
+fn start_cycle(
+    mut change_room: EventWriter<crate::room::ChangeRoom>,
+    mut unlock_skill: EventWriter<crate::skills::SkillUnlockedEvent>,
+) {
+    unlock_skill.send(crate::skills::SkillUnlockedEvent {
+        skill: crate::skills::Skill::Armor,
+    });
     change_room.send(crate::room::ChangeRoom {
         next_room_name: "Lovely Cottage".into(),
         ..Default::default()
