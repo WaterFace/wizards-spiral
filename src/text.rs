@@ -102,7 +102,7 @@ fn spawn_next_room_text(mut commands: Commands, current_room: Res<crate::room::C
             NextRoomText { side: dir },
             TextMarker {
                 font_size: 18.0,
-                text: format!("To {}", next_room_name),
+                text: format!("{}", next_room_name),
                 ..Default::default()
             },
             crate::room::RoomObject,
