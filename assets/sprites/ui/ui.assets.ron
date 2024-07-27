@@ -3,4 +3,12 @@
         path: "sprites/ui/UI Panel.png",
         sampler: Nearest,
     ),
+    "menu_background": Image (
+        path: "sprites/ui/Background.png",
+        sampler: Nearest,
+    ),
+    "title": Image (
+        path: "sprites/ui/Title.png",
+        sampler: Nearest,
+    )
 })

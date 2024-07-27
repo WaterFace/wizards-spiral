@@ -1,5 +1,6 @@
 use bevy::{ecs::system::SystemId, prelude::*, utils::HashMap};
 use bevy_asset_loader::prelude::*;
+use bevy_math::vec2;
 
 #[derive(Debug, Default)]
 pub struct MenusPlugin;
@@ -41,14 +42,33 @@ impl Plugin for MenusPlugin {
     }
 }
 
-const BASE_BUTTON_COLOR: Color = Color::Srgba(bevy::color::palettes::basic::AQUA);
-const HOVERED_BUTTON_COLOR: Color = Color::Srgba(bevy::color::palettes::css::ORANGE_RED);
-const PRESSED_BUTTON_COLOR: Color = Color::Srgba(bevy::color::palettes::css::CRIMSON);
+const BASE_BUTTON_COLOR: Color = Color::Srgba(bevy::color::palettes::basic::GRAY);
+const HOVERED_BUTTON_COLOR: Color = Color::Srgba(bevy::color::palettes::css::SKY_BLUE);
+const PRESSED_BUTTON_COLOR: Color = Color::Srgba(bevy::color::palettes::css::ORANGE_RED);
+
+fn button_style() -> Style {
+    Style {
+        padding: UiRect::all(Val::Px(16.0)),
+        align_items: AlignItems::Center,
+        justify_content: JustifyContent::Center,
+        max_width: Val::Px(300.0),
+        min_width: Val::Px(300.0),
+        min_height: Val::Px(65.0),
+        max_height: Val::Px(65.0),
+        ..Default::default()
+    }
+}
 
 #[derive(Debug, Clone, AssetCollection, Resource)]
 pub struct UiAssets {
     #[asset(key = "panel")]
     pub panel: Handle<Image>,
+
+    #[asset(key = "menu_background")]
+    pub menu_background: Handle<Image>,
+
+    #[asset(key = "title")]
+    pub title: Handle<Image>,
 }
 
 #[derive(Debug, Resource)]
@@ -104,11 +124,17 @@ fn main_menu(
     save_data: Option<Res<crate::save_data::SaveData>>,
 ) {
     commands.spawn((
-        Camera2dBundle {
-            camera: Camera {
-                order: 1000,
+        crate::camera::menu_camera(),
+        StateScoped(crate::states::GameState::MainMenu),
+    ));
+
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(vec2(1280.0, 720.0)),
                 ..Default::default()
             },
+            texture: ui_assets.menu_background.clone(),
             ..Default::default()
         },
         StateScoped(crate::states::GameState::MainMenu),
@@ -129,6 +155,16 @@ fn main_menu(
             },
             StateScoped(crate::states::GameState::MainMenu),
         ))
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                image: ui_assets.title.clone().into(),
+                style: Style {
+                    height: Val::Percent(50.0),
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
+        })
         .id();
 
     let new_game_button = commands.spawn_button(
@@ -157,16 +193,7 @@ fn loading_screen<S: States>(
     fonts: Res<crate::text::Fonts>,
     ui_assets: Res<UiAssets>,
 ) {
-    commands.spawn((
-        Camera2dBundle {
-            camera: Camera {
-                order: 1000,
-                ..Default::default()
-            },
-            ..Default::default()
-        },
-        StateScoped(state.clone()),
-    ));
+    commands.spawn((crate::camera::menu_camera(), StateScoped(state.clone())));
 
     let loading_button = commands.spawn_button(
         state.clone(),
@@ -175,6 +202,18 @@ fn loading_screen<S: States>(
         fonts.normal.clone(),
         ui_assets.panel.clone(),
     );
+
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(vec2(1280.0, 720.0)),
+                ..Default::default()
+            },
+            texture: ui_assets.menu_background.clone(),
+            ..Default::default()
+        },
+        StateScoped(state.clone()),
+    ));
 
     commands
         .spawn((
@@ -228,12 +267,7 @@ impl MenuCommandsExt for Commands<'_, '_> {
             .id();
         let mut button = self.spawn((
             ButtonBundle {
-                style: Style {
-                    padding: UiRect::all(Val::Px(16.0)),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..Default::default()
-                },
+                style: button_style(),
                 image: UiImage {
                     color: BASE_BUTTON_COLOR,
                     texture,

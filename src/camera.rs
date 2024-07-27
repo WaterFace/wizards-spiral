@@ -17,7 +17,7 @@ impl Plugin for CameraPlugin {
 pub struct GameCamera;
 
 #[derive(Debug, Default, Component)]
-pub struct UiCamera;
+pub struct MenuCamera;
 
 pub fn game_camera() -> impl Bundle {
     (
@@ -34,6 +34,29 @@ pub fn game_camera() -> impl Bundle {
         GameCamera,
         // so we can parent visible things to the camera
         VisibilityBundle::default(),
+    )
+}
+
+pub fn menu_camera() -> impl Bundle {
+    (
+        Camera2dBundle {
+            camera: Camera {
+                order: 1000,
+                ..Default::default()
+            },
+            projection: OrthographicProjection {
+                scale: 1.0,
+                near: -1000.0,
+                far: 1000.0,
+                scaling_mode: ScalingMode::AutoMax {
+                    max_height: 720.0,
+                    max_width: 1280.0,
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        MenuCamera,
     )
 }
 
