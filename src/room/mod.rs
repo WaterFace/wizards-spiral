@@ -235,6 +235,7 @@ struct ObstacleBundle {
     obstacle: Obstacle,
     room_object: RoomObject,
     collider: Collider,
+    colision_groups: CollisionGroups,
 }
 
 #[derive(Bundle, Default)]

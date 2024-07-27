@@ -76,7 +76,16 @@ pub fn spawn_enemies(
                 // So the enemy will be despawned when we change room
                 crate::room::RoomObject,
             ))
-            .insert(crate::enemy::WanderState::new(2.5, 4.0, &mut **rng));
+            .insert((
+                crate::enemy::WanderState::new(2.5, 4.0, &mut **rng),
+                CollisionGroups::new(
+                    crate::physics::COLLISION_GROUP_ENEMY,
+                    crate::physics::COLLISION_GROUP_ENEMY
+                        | crate::physics::COLLISION_GROUP_OBSTACLE
+                        | crate::physics::COLLISION_GROUP_PLAYER
+                        | crate::physics::COLLISION_GROUP_REFLECTED_PROJECTILE,
+                ),
+            ));
     }
 
     next_state.set(crate::states::GameState::InGame);
@@ -164,6 +173,10 @@ pub fn spawn_room(
             Collider::cuboid(rect.half_size().x, rect.half_size().y),
             wall,
             crate::room::RoomObject,
+            CollisionGroups::new(
+                crate::physics::COLLISION_GROUP_OBSTACLE,
+                crate::physics::COLLISION_GROUP_ENEMY | crate::physics::COLLISION_GROUP_PLAYER,
+            ),
         ));
     }
 
@@ -193,6 +206,10 @@ pub fn spawn_room(
                 },
                 transform: Transform::from_translation(obstacle_state.position.extend(0.0)),
                 collider: Collider::capsule_y(12.0, 12.0),
+                colision_groups: CollisionGroups::new(
+                    crate::physics::COLLISION_GROUP_OBSTACLE,
+                    crate::physics::COLLISION_GROUP_ENEMY | crate::physics::COLLISION_GROUP_PLAYER,
+                ),
                 ..Default::default()
             });
         }

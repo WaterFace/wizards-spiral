@@ -98,6 +98,13 @@ pub fn spawn_player(
                 spawn_position.extend(0.0),
             )),
             ActiveEvents::COLLISION_EVENTS,
+            CollisionGroups::new(
+                crate::physics::COLLISION_GROUP_PLAYER,
+                crate::physics::COLLISION_GROUP_ENEMY
+                    | crate::physics::COLLISION_GROUP_OBSTACLE
+                    | crate::physics::COLLISION_GROUP_PLAYER
+                    | crate::physics::COLLISION_GROUP_PROJECTILE,
+            ),
         ));
 }
 
