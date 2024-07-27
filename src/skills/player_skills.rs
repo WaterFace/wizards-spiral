@@ -188,6 +188,9 @@ impl PlayerSkills {
 
     pub fn drain_levelups(&mut self, buf: &mut Vec<LevelUpEvent>) {
         for skill in Skill::iter() {
+            if self.levelups[skill] == 0 {
+                continue;
+            }
             buf.push(LevelUpEvent {
                 num_levels: self.levelups[skill],
                 skill,
