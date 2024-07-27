@@ -15,13 +15,17 @@ impl Plugin for InputPlugin {
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
 pub enum PlayerAction {
     Move,
+    ManuallyRestart,
 }
 
 impl PlayerAction {
     fn mkb_input_map() -> InputMap<Self> {
-        InputMap::new([
+        let mut input_map = InputMap::new([
             (PlayerAction::Move, VirtualDPad::wasd()),
             (PlayerAction::Move, VirtualDPad::arrow_keys()),
-        ])
+        ]);
+        input_map.insert_multiple([(PlayerAction::ManuallyRestart, KeyCode::KeyK)]);
+
+        input_map
     }
 }

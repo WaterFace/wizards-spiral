@@ -25,7 +25,7 @@ impl Plugin for PlayerPlugin {
             )
             .add_systems(
                 Update,
-                (move_player, handle_player_death)
+                (move_player, handle_player_death, manually_restart)
                     .run_if(in_state(crate::states::GameState::InGame)),
             );
     }
@@ -71,6 +71,24 @@ struct PlayerDeathTimer(Timer);
 impl Default for PlayerDeathTimer {
     fn default() -> Self {
         PlayerDeathTimer(Timer::from_seconds(2.0, TimerMode::Once))
+    }
+}
+
+fn manually_restart(
+    mut player_health: ResMut<PlayerHealth>,
+    player_action: Res<ActionState<PlayerAction>>,
+    time: Res<Time>,
+    mut time_held: Local<f32>,
+) {
+    if player_action.pressed(&PlayerAction::ManuallyRestart) {
+        *time_held += time.delta_seconds();
+    } else {
+        *time_held = 0.0;
+    }
+
+    if *time_held > 2.0 {
+        player_health.current = 0.0;
+        player_health.dead = true;
     }
 }
 
