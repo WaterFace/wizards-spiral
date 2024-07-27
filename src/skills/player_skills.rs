@@ -215,24 +215,31 @@ impl PlayerSkills {
 
         player_skills.stored_levels[Skill::Armor] = save_data.armor_level;
         player_skills.stored_xp[Skill::Armor] = save_data.armor_xp;
+        player_skills.unlocked[Skill::Armor] = save_data.armor_unlocked;
 
         player_skills.stored_levels[Skill::Sword] = save_data.sword_level;
         player_skills.stored_xp[Skill::Sword] = save_data.sword_xp;
+        player_skills.unlocked[Skill::Sword] = save_data.sword_unlocked;
 
         player_skills.stored_levels[Skill::Shield] = save_data.shield_level;
         player_skills.stored_xp[Skill::Shield] = save_data.shield_xp;
+        player_skills.unlocked[Skill::Shield] = save_data.shield_unlocked;
 
         player_skills.stored_levels[Skill::Pants] = save_data.pants_level;
         player_skills.stored_xp[Skill::Pants] = save_data.pants_xp;
+        player_skills.unlocked[Skill::Pants] = save_data.pants_unlocked;
 
         player_skills.stored_levels[Skill::Mirror] = save_data.mirror_level;
         player_skills.stored_xp[Skill::Mirror] = save_data.mirror_xp;
+        player_skills.unlocked[Skill::Mirror] = save_data.mirror_unlocked;
 
         player_skills.stored_levels[Skill::Healing] = save_data.healing_level;
         player_skills.stored_xp[Skill::Healing] = save_data.healing_xp;
+        player_skills.unlocked[Skill::Healing] = save_data.healing_unlocked;
 
         player_skills.stored_levels[Skill::Speed] = save_data.speed_level;
         player_skills.stored_xp[Skill::Speed] = save_data.speed_xp;
+        player_skills.unlocked[Skill::Speed] = save_data.speed_unlocked;
 
         player_skills
     }

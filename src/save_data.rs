@@ -81,24 +81,31 @@ pub struct SaveData {
 
     pub armor_level: u64,
     pub armor_xp: f32,
+    pub armor_unlocked: bool,
 
     pub sword_level: u64,
     pub sword_xp: f32,
+    pub sword_unlocked: bool,
 
     pub shield_level: u64,
     pub shield_xp: f32,
+    pub shield_unlocked: bool,
 
     pub pants_level: u64,
     pub pants_xp: f32,
+    pub pants_unlocked: bool,
 
     pub mirror_level: u64,
     pub mirror_xp: f32,
+    pub mirror_unlocked: bool,
 
     pub healing_level: u64,
     pub healing_xp: f32,
+    pub healing_unlocked: bool,
 
     pub speed_level: u64,
     pub speed_xp: f32,
+    pub speed_unlocked: bool,
 }
 
 impl SaveData {
@@ -114,24 +121,31 @@ impl SaveData {
 
             armor_level: player_skills.get(crate::skills::Skill::Armor),
             armor_xp: player_skills.get_xp(crate::skills::Skill::Armor),
+            armor_unlocked: player_skills.get_unlocked(crate::skills::Skill::Armor),
 
             sword_level: player_skills.get(crate::skills::Skill::Sword),
             sword_xp: player_skills.get_xp(crate::skills::Skill::Sword),
+            sword_unlocked: player_skills.get_unlocked(crate::skills::Skill::Sword),
 
             shield_level: player_skills.get(crate::skills::Skill::Shield),
             shield_xp: player_skills.get_xp(crate::skills::Skill::Shield),
+            shield_unlocked: player_skills.get_unlocked(crate::skills::Skill::Shield),
 
             pants_level: player_skills.get(crate::skills::Skill::Pants),
             pants_xp: player_skills.get_xp(crate::skills::Skill::Pants),
+            pants_unlocked: player_skills.get_unlocked(crate::skills::Skill::Pants),
 
             mirror_level: player_skills.get(crate::skills::Skill::Mirror),
             mirror_xp: player_skills.get_xp(crate::skills::Skill::Mirror),
+            mirror_unlocked: player_skills.get_unlocked(crate::skills::Skill::Mirror),
 
             healing_level: player_skills.get(crate::skills::Skill::Healing),
             healing_xp: player_skills.get_xp(crate::skills::Skill::Healing),
+            healing_unlocked: player_skills.get_unlocked(crate::skills::Skill::Healing),
 
             speed_level: player_skills.get(crate::skills::Skill::Speed),
             speed_xp: player_skills.get_xp(crate::skills::Skill::Speed),
+            speed_unlocked: player_skills.get_unlocked(crate::skills::Skill::Speed),
         }
     }
 
