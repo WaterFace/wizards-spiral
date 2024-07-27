@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
-use bevy_math::{vec2, vec3, VectorSpace};
+use bevy_math::vec3;
 
 #[derive(Debug, Default)]
 pub struct HealthbarsPlugin;
