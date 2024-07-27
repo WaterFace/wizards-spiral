@@ -3,6 +3,7 @@ use bevy::prelude::*;
 mod assets;
 mod camera;
 mod character_controller;
+mod cycles;
 mod damage;
 mod enemy;
 mod input;
