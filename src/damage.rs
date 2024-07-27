@@ -106,7 +106,6 @@ fn resolve_melee_attacks(
     mut damage_events: EventWriter<DamageEvent>,
 ) {
     for MeleeAttackEvent { player, enemy } in reader.read() {
-        info!("player: {player:?}, enemy: {enemy:?}");
         let Ok((mut player_impulse, player_transform)) = player_query.get_mut(*player) else {
             warn!("resolve_melee_attacks: player query unsucessful");
             continue;
