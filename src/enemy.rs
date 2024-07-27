@@ -158,7 +158,7 @@ fn handle_enemy_death(
 
 fn alert_visual(mut commands: Commands, mut events: EventReader<EnemyAlertEvent>) {
     const OFFSET: Vec3 = bevy_math::vec3(0.0, 16.0, 0.0);
-    const VELOCITY: Vec2 = bevy_math::vec2(0.0, 1.0);
+    const VELOCITY: Vec2 = bevy_math::vec2(0.0, 8.0);
     for EnemyAlertEvent { enemy, ty } in events.read() {
         match ty {
             EnemyAlertEventType::TooFar => {
