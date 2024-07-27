@@ -22,8 +22,3 @@ pub const COLLISION_GROUP_PLAYER: Group = Group::GROUP_2;
 pub const COLLISION_GROUP_ENEMY: Group = Group::GROUP_3;
 pub const COLLISION_GROUP_PROJECTILE: Group = Group::GROUP_4;
 pub const COLLISION_GROUP_REFLECTED_PROJECTILE: Group = Group::GROUP_4;
-
-fn toggle_physics_debug_render(mut debug_render_context: ResMut<DebugRenderContext>) {
-    let enabled = debug_render_context.enabled;
-    debug_render_context.enabled = !enabled;
-}
