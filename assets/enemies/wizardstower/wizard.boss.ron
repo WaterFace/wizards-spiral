@@ -1,0 +1,21 @@
+BossStats(
+    name: "The Wizard",
+    skill_unlocked: None,
+    scale: 3.0,
+    stats: EnemyStats(
+        enemy_type: Ranged(
+            melee_damage: 200.0,
+            projectile_damage: 200.0,
+            projectile_speed: 1200.0,
+            projectile_lifetime: 2.0,
+            homing: false,
+            delay: 8.0,
+        ),
+        health: 10000.0,
+        speed: 100.0,
+        mass: 20.0,
+        alert_radius: 650.0,
+        chase_radius: 99999999999.0,
+        desired_distance: 0.0,
+    )
+)

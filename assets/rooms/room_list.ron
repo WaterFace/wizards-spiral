@@ -7,5 +7,6 @@ RoomsToLoad(
         "rooms/church.assets.ron",
         "rooms/shrine.assets.ron",
         "rooms/volcano.assets.ron",
+        "rooms/wizardstower.assets.ron",
     ]
 )

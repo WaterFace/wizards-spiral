@@ -1,0 +1,30 @@
+({
+    "info": File(path: "rooms/wizardstower.info.ron"),
+
+    "background_texture": Image(
+        path: "sprites/wizardstower/WizardsTowerBackground.png",
+        sampler: Nearest
+    ),
+    "obstacle_texture": Image(
+        path: "sprites/wizardstower/WizardsTowerObstacle.png",
+        sampler: Nearest
+    ),
+
+    "boss_stats": File(path: "enemies/wizardstower/wizard.boss.ron"),
+
+    "melee_enemy_texture": Image(
+        path: "sprites/wizardstower/MagicElemental.png",
+        sampler: Nearest
+    ),
+    "melee_enemy_stats": File(path:"enemies/wizardstower/magic_elemental.enemy.ron"),
+
+    "ranged_enemy_texture": Image(
+        path: "sprites/wizardstower/Wizard.png",
+        sampler: Nearest
+    ),
+    "ranged_enemy_stats": File(path:"enemies/wizardstower/wizard.enemy.ron"),
+    "projectile": Image(
+        path: "sprites/wizardstower/LightningBall.png",
+        sampler: Nearest,
+    )
+})

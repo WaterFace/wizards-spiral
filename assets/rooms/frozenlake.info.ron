@@ -7,4 +7,5 @@
     num_obstacles: 8,
     east: Some("Fields of Clover"),
     south: Some("Shrine to Amanon"),
+    north: Some("The Wizard's Tower"),
 )

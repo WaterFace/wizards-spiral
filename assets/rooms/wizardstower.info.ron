@@ -1,0 +1,9 @@
+(
+    name: "The Wizard's Tower",
+    rect: Rect(min: Vec2(-800.0, -800.0), max: Vec2(800.0, 800.0)),
+    boss: true,
+    num_melee_enemies: 75,
+    num_ranged_enemies: 0,
+    num_obstacles: 16,
+    south: Some("Frozen Lake"),
+)
