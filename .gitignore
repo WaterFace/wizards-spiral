@@ -1,1 +1,5 @@
 /target
+*.wasm
+wizards-spiral.js
+/screenshots
+*.zip
