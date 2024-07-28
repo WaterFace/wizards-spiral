@@ -135,7 +135,7 @@ impl PlayerSkills {
         }
 
         // TODO: maybe give an xp bonus based on highest previously achieved?
-        // let xp = xp * (1.0 + (self.get_highest_f32(skill) / 100.0).sqrt());
+        let xp = xp * (1.0 + (self.get_highest_f32(skill) / 100.0).sqrt());
         self.delta_xp[skill] += xp;
         loop {
             let current_xp = self.get_xp(skill);
@@ -157,7 +157,7 @@ impl PlayerSkills {
     /// returns the total amount of xp required to gain one level in the given skill.
     /// does not include any xp currently stored
     pub fn xp_needed(&self, skill: Skill) -> f32 {
-        1.0 + self.get_f32(skill) / 2.0
+        1.0 + self.get_f32(skill) / 10.0
     }
 
     /// if the total amount of xp for this skill is greater than `xp`,
