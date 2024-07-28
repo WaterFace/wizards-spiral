@@ -34,6 +34,7 @@ pub fn game_camera() -> impl Bundle {
         GameCamera,
         // so we can parent visible things to the camera
         VisibilityBundle::default(),
+        Name::new("Game Camera"),
     )
 }
 
@@ -57,6 +58,7 @@ pub fn menu_camera() -> impl Bundle {
             ..Default::default()
         },
         MenuCamera,
+        Name::new("Menu Camera"),
     )
 }
 
@@ -65,6 +67,7 @@ pub fn spawn_game_camera(mut commands: Commands) {
 }
 
 pub fn destroy_game_camera(mut commands: Commands, query: Query<Entity, With<GameCamera>>) {
+    info!("destroy_game_camera: despawning game cameras");
     for e in query.iter() {
         commands.entity(e).despawn_recursive()
     }

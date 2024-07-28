@@ -48,10 +48,8 @@ struct HealthbarSpriteRect {
 }
 
 fn update_healthbars(
-    mut commands: Commands,
     enemy_query: Query<&crate::enemy::EnemyHealth>,
     mut healthbar_query: Query<(
-        Entity,
         &Healthbar,
         Option<&mut Visibility>,
         Option<&mut Sprite>,
@@ -59,14 +57,11 @@ fn update_healthbars(
     )>,
     player_health: Res<crate::player::PlayerHealth>,
 ) {
-    for (healthbar_entity, healthbar, visibility, sprite, sprite_rect) in healthbar_query.iter_mut()
-    {
+    for (healthbar, visibility, sprite, sprite_rect) in healthbar_query.iter_mut() {
         let health_fraction = match healthbar {
             Healthbar::Player => player_health.current / player_health.maximum,
             Healthbar::Enemy { entity } => {
                 let Ok(enemy_health) = enemy_query.get(*entity) else {
-                    warn!("update_healthbars: healthbar is pointing to enemy {entity:?}, but that entity doesn't exist or have an EnemyHealth");
-                    commands.entity(healthbar_entity).despawn_recursive();
                     continue;
                 };
                 enemy_health.current / enemy_health.maximum
@@ -158,6 +153,7 @@ fn spawn_healthbars(
                     HealthbarSpriteRect {
                         rect: Rect::from_corners(Vec2::ZERO, healthbar_size),
                     },
+                    Name::new("Boss Healthbar Root"),
                 ))
                 .with_children(|parent| {
                     parent.spawn((
@@ -170,6 +166,7 @@ fn spawn_healthbars(
                             text: boss_name,
                             ..Default::default()
                         },
+                        Name::new("Boss Healthbar Text"),
                     ));
                 })
                 .set_parent(camera_entity)
@@ -187,21 +184,25 @@ fn spawn_healthbars(
                     HealthbarSpriteRect {
                         rect: Rect::from_corners(Vec2::ZERO, healthbar_size),
                     },
+                    Name::new("Enemy Healthbar Root"),
                 ))
                 .set_parent(entity)
                 .id()
         };
 
         commands.entity(root).with_children(|parent| {
-            parent.spawn(SpriteBundle {
-                transform: Transform::from_xyz(-healthbar_size.x / 2.0, 0.0, 0.0),
-                texture: healthbar_assets.healthbar_empty.clone(),
-                sprite: Sprite {
-                    anchor: bevy::sprite::Anchor::CenterLeft,
+            parent.spawn((
+                SpriteBundle {
+                    transform: Transform::from_xyz(-healthbar_size.x / 2.0, 0.0, 0.0),
+                    texture: healthbar_assets.healthbar_empty.clone(),
+                    sprite: Sprite {
+                        anchor: bevy::sprite::Anchor::CenterLeft,
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            });
+                Name::new("Healthbar Background"),
+            ));
 
             parent.spawn((
                 SpriteBundle {
@@ -218,6 +219,7 @@ fn spawn_healthbars(
                 HealthbarSpriteRect {
                     rect: Rect::from_corners(Vec2::ZERO, healthbar_size),
                 },
+                Name::new("Healthbar Foreground"),
             ));
         });
     }

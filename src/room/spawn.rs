@@ -28,8 +28,6 @@ pub fn spawn_enemies(
             }
         }
 
-        info!("spawning enemy at {:?}", transform.translation);
-
         let (texture, stats, boss_stats) = match spawner.ty {
             super::SpawnerType::Melee => (
                 current_room.assets.melee_enemy_texture.clone(),
@@ -103,10 +101,11 @@ pub fn spawn_enemies(
                         | crate::physics::COLLISION_GROUP_PLAYER
                         | crate::physics::COLLISION_GROUP_REFLECTED_PROJECTILE,
                 ),
+                Name::new("Enemy"),
             ));
 
         if let Some(boss_stats) = boss_stats.as_ref() {
-            spawned_enemy.insert((boss_stats.clone(), crate::enemy::Boss));
+            spawned_enemy.insert((boss_stats.clone(), crate::enemy::Boss, Name::new("Boss")));
         }
     }
 
@@ -146,6 +145,7 @@ pub fn spawn_room(
             tile_y: true,
             stretch_value: 1.0,
         },
+        Name::new("Floor"),
     ));
 
     // Walls
@@ -199,6 +199,7 @@ pub fn spawn_room(
                 crate::physics::COLLISION_GROUP_OBSTACLE,
                 crate::physics::COLLISION_GROUP_ENEMY | crate::physics::COLLISION_GROUP_PLAYER,
             ),
+            Name::new("Wall"),
         ));
     }
 
@@ -209,31 +210,38 @@ pub fn spawn_room(
         );
         // room state found, spawn things according to the cached data
         for (index, spawner_state) in room_state.spawners.iter().enumerate() {
-            commands.spawn(super::SpawnerBundle {
-                transform: Transform::from_translation(spawner_state.position.extend(0.0)),
-                spawner: super::Spawner {
-                    index,
-                    ty: spawner_state.ty,
-                    active: spawner_state.active,
-                },
-                ..Default::default()
-            });
-        }
-        for obstacle_state in room_state.obstacles.iter() {
-            commands.spawn(super::ObstacleBundle {
-                texture: current_room.assets.obstacle_texture.clone(),
-                sprite: Sprite {
-                    custom_size: Some(vec2(32.0, 64.0)),
+            commands.spawn((
+                super::SpawnerBundle {
+                    transform: Transform::from_translation(spawner_state.position.extend(0.0)),
+                    spawner: super::Spawner {
+                        index,
+                        ty: spawner_state.ty,
+                        active: spawner_state.active,
+                    },
                     ..Default::default()
                 },
-                transform: Transform::from_translation(obstacle_state.position.extend(0.0)),
-                collider: Collider::capsule_y(12.0, 12.0),
-                colision_groups: CollisionGroups::new(
-                    crate::physics::COLLISION_GROUP_OBSTACLE,
-                    crate::physics::COLLISION_GROUP_ENEMY | crate::physics::COLLISION_GROUP_PLAYER,
-                ),
-                ..Default::default()
-            });
+                Name::new("Spawner"),
+            ));
+        }
+        for obstacle_state in room_state.obstacles.iter() {
+            commands.spawn((
+                super::ObstacleBundle {
+                    texture: current_room.assets.obstacle_texture.clone(),
+                    sprite: Sprite {
+                        custom_size: Some(vec2(32.0, 64.0)),
+                        ..Default::default()
+                    },
+                    transform: Transform::from_translation(obstacle_state.position.extend(0.0)),
+                    collider: Collider::capsule_y(12.0, 12.0),
+                    colision_groups: CollisionGroups::new(
+                        crate::physics::COLLISION_GROUP_OBSTACLE,
+                        crate::physics::COLLISION_GROUP_ENEMY
+                            | crate::physics::COLLISION_GROUP_PLAYER,
+                    ),
+                    ..Default::default()
+                },
+                Name::new("Obstacle"),
+            ));
         }
     } else {
         info!(
@@ -276,17 +284,18 @@ pub fn spawn_room(
                 super::SpawnerType::Boss
             };
 
-            info!("Placing spawner {index} at {pos:?}");
-
-            commands.spawn(super::SpawnerBundle {
-                transform: Transform::from_translation(pos.extend(0.0)),
-                spawner: super::Spawner {
-                    index,
-                    ty,
-                    active: true,
+            commands.spawn((
+                super::SpawnerBundle {
+                    transform: Transform::from_translation(pos.extend(0.0)),
+                    spawner: super::Spawner {
+                        index,
+                        ty,
+                        active: true,
+                    },
+                    ..Default::default()
                 },
-                ..Default::default()
-            });
+                Name::new("Spawner"),
+            ));
             this_room_state.spawners.push(super::SpawnerState {
                 active: true,
                 position: pos,
@@ -303,16 +312,19 @@ pub fn spawn_room(
                 .take(current_room.info.num_obstacles),
         );
         for pos in working.drain(..) {
-            commands.spawn(super::ObstacleBundle {
-                texture: current_room.assets.obstacle_texture.clone(),
-                sprite: Sprite {
-                    custom_size: Some(vec2(32.0, 64.0)),
+            commands.spawn((
+                super::ObstacleBundle {
+                    texture: current_room.assets.obstacle_texture.clone(),
+                    sprite: Sprite {
+                        custom_size: Some(vec2(32.0, 64.0)),
+                        ..Default::default()
+                    },
+                    transform: Transform::from_translation(pos.extend(0.0)),
+                    collider: Collider::capsule_y(12.0, 12.0),
                     ..Default::default()
                 },
-                transform: Transform::from_translation(pos.extend(0.0)),
-                collider: Collider::capsule_y(12.0, 12.0),
-                ..Default::default()
-            });
+                Name::new("Obstacle"),
+            ));
 
             this_room_state
                 .obstacles

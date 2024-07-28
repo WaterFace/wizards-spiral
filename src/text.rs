@@ -22,7 +22,10 @@ impl Plugin for TextPlugin {
         )
         .add_systems(
             Update,
-            (handle_text_markers, update_aabb_fields)
+            (
+                (apply_deferred, handle_text_markers, apply_deferred).chain(),
+                update_aabb_fields,
+            )
                 .run_if(not(in_state(crate::states::AppState::CoreLoading))),
         )
         .add_loading_state(
@@ -68,9 +71,13 @@ fn level_up_text(
                     velocity: VELOCITY,
                     ..Default::default()
                 },
+                Name::new("Levelup Floating Text"),
             ))
             .id();
-        commands.entity(player).add_child(floating_text);
+        let Some(mut entity_commands) = commands.get_entity(player) else {
+            continue;
+        };
+        entity_commands.add_child(floating_text);
     }
 }
 
@@ -106,6 +113,7 @@ fn spawn_next_room_text(mut commands: Commands, current_room: Res<crate::room::C
                 ..Default::default()
             },
             crate::room::RoomObject,
+            Name::new("Next Room Text"),
         ));
     }
 }
@@ -193,9 +201,13 @@ fn room_text(
                     timer: Timer::from_seconds(3.5, TimerMode::Once),
                     velocity: Vec2::ZERO,
                 },
+                Name::new("Room Text"),
             ))
             .id();
-        commands.entity(camera_entity).add_child(text_entity);
+        let Some(mut entity_commands) = commands.get_entity(camera_entity) else {
+            return;
+        };
+        entity_commands.add_child(text_entity);
     }
 }
 
@@ -232,6 +244,7 @@ fn handle_text_markers(
             &fonts.normal
         };
 
+        info!("handle_text_markers: {:?}", e);
         let Some(mut entity_commands) = commands.get_entity(e) else {
             continue;
         };

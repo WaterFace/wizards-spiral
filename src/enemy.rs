@@ -204,6 +204,7 @@ fn handle_enemy_death(
                 ..Default::default()
             },
             crate::room::RoomObject,
+            Name::new("Corpse"),
         ));
     }
 }
@@ -240,6 +241,7 @@ fn alert_visual(mut commands: Commands, mut events: EventReader<EnemyAlertEvent>
                     velocity: VELOCITY,
                     ..Default::default()
                 },
+                Name::new("Alert Floating Text"),
             ))
             .id();
         commands.entity(*enemy).add_child(floating_text);

@@ -162,6 +162,7 @@ fn main_menu(
             ..Default::default()
         },
         StateScoped(crate::states::GameState::MainMenu),
+        Name::new("Menu Background"),
     ));
 
     let base = commands
@@ -178,16 +179,20 @@ fn main_menu(
                 ..Default::default()
             },
             StateScoped(crate::states::GameState::MainMenu),
+            Name::new("Main Menu Root"),
         ))
         .with_children(|parent| {
-            parent.spawn(ImageBundle {
-                image: ui_assets.title.clone().into(),
-                style: Style {
-                    height: Val::Percent(50.0),
+            parent.spawn((
+                ImageBundle {
+                    image: ui_assets.title.clone().into(),
+                    style: Style {
+                        height: Val::Percent(50.0),
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            });
+                Name::new("Main Menu Title"),
+            ));
         })
         .id();
 
@@ -237,6 +242,7 @@ fn loading_screen<S: States>(
             ..Default::default()
         },
         StateScoped(state.clone()),
+        Name::new("Loading Screen Background"),
     ));
 
     commands
@@ -252,6 +258,7 @@ fn loading_screen<S: States>(
                 ..Default::default()
             },
             StateScoped(state.clone()),
+            Name::new("Loading Screen Root"),
         ))
         .add_child(loading_button);
 }
@@ -299,6 +306,7 @@ fn skills_menu(
                 ..Default::default()
             },
             StateScoped(crate::states::MenuState::SkillsMenu),
+            Name::new("Skills Menu Root"),
         ))
         .with_children(|parent| {
             for skill in crate::skills::Skill::iter() {
@@ -335,6 +343,7 @@ fn skills_menu(
                             border: BorderRect::square(16.0),
                             ..Default::default()
                         }),
+                        Name::new("Skills Menu Entry"),
                     ))
                     .with_children(|parent| {
                         let icon = if player_skills.get_unlocked(skill) {
@@ -342,11 +351,14 @@ fn skills_menu(
                         } else {
                             ui_assets.locked_icon.clone()
                         };
-                        parent.spawn(ImageBundle {
-                            image: icon.into(),
-                            background_color: bevy::color::palettes::tailwind::GRAY_800.into(),
-                            ..Default::default()
-                        });
+                        parent.spawn((
+                            ImageBundle {
+                                image: icon.into(),
+                                background_color: bevy::color::palettes::tailwind::GRAY_800.into(),
+                                ..Default::default()
+                            },
+                            Name::new("Skills Menu Icon"),
+                        ));
                         let text_sections = crate::util::highlight_text(
                             &if player_skills.get_unlocked(skill) {
                                 player_skills.description(skill)
@@ -358,14 +370,17 @@ fn skills_menu(
                             24.0,
                             fonts.normal.clone(),
                         );
-                        parent.spawn(TextBundle {
-                            style: Style {
-                                margin: UiRect::all(Val::Px(16.0)),
+                        parent.spawn((
+                            TextBundle {
+                                style: Style {
+                                    margin: UiRect::all(Val::Px(16.0)),
+                                    ..Default::default()
+                                },
+                                text: Text::from_sections(text_sections),
                                 ..Default::default()
                             },
-                            text: Text::from_sections(text_sections),
-                            ..Default::default()
-                        });
+                            Name::new("Skills Menu Text"),
+                        ));
                     });
             }
         });
@@ -392,17 +407,20 @@ impl MenuCommandsExt for Commands<'_, '_> {
         texture: Handle<Image>,
     ) -> Entity {
         let text_id = self
-            .spawn(TextBundle {
-                text: Text::from_section(
-                    button_text,
-                    TextStyle {
-                        font,
-                        font_size: 54.0,
-                        ..Default::default()
-                    },
-                ),
-                ..Default::default()
-            })
+            .spawn((
+                TextBundle {
+                    text: Text::from_section(
+                        button_text,
+                        TextStyle {
+                            font,
+                            font_size: 54.0,
+                            ..Default::default()
+                        },
+                    ),
+                    ..Default::default()
+                },
+                Name::new("Button Text"),
+            ))
             .id();
         let mut button = self.spawn((
             ButtonBundle {
@@ -419,6 +437,7 @@ impl MenuCommandsExt for Commands<'_, '_> {
                 ..Default::default()
             }),
             StateScoped(state),
+            Name::new("Button"),
         ));
 
         if let Some(system_name) = system_name {

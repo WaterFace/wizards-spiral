@@ -105,6 +105,7 @@ fn spawn_reflected_projectiles(
             ),
             Velocity::linear(dir * projectile.speed),
             crate::room::RoomObject,
+            Name::new("Reflected Projectile"),
         ));
     }
 }
@@ -286,6 +287,7 @@ fn launch_projectiles(
             ),
             Velocity::linear(dir * projectile_launcher_state.projectile_speed),
             crate::room::RoomObject,
+            Name::new("Projectile"),
         ));
     }
 }

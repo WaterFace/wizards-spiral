@@ -187,10 +187,12 @@ pub fn spawn_player(
                     | crate::physics::COLLISION_GROUP_PLAYER
                     | crate::physics::COLLISION_GROUP_PROJECTILE,
             ),
+            Name::new("Player"),
         ));
 }
 
 pub fn destroy_player(mut commands: Commands, player_query: Query<Entity, With<Player>>) {
+    info!("destroy_player: despawning player");
     for e in player_query.iter() {
         commands.entity(e).despawn_recursive()
     }
