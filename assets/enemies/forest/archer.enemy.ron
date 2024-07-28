@@ -1,7 +1,7 @@
 (
     enemy_type: Ranged(
         melee_damage: 5.0,
-        projectile_damage: 10.0,
+        projectile_damage: 2.0,
         projectile_speed: 300.0,
         projectile_lifetime: 2.0,
         homing: false,

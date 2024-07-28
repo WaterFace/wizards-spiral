@@ -1,6 +1,6 @@
 BossStats(
     name: "Screech, Royal Goblin Vanguard",
-    skill_unlocked: Some(Mirror),
+    skill_unlocked: Some(Pants),
     scale: 1.0,
     stats: EnemyStats(
         enemy_type: Melee(
