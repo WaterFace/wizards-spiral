@@ -6,6 +6,15 @@ pub struct CyclePlugin;
 impl Plugin for CyclePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            // a new game goes through the intro first
+            OnTransition {
+                exited: crate::states::GameState::Intro,
+                entered: crate::states::GameState::RestartCycle,
+            },
+            start_game,
+        )
+        .add_systems(
+            // a continued game goes right to RestartCycle
             OnTransition {
                 exited: crate::states::GameState::MainMenu,
                 entered: crate::states::GameState::RestartCycle,
@@ -20,6 +29,10 @@ impl Plugin for CyclePlugin {
                 start_cycle,
             )
                 .chain(),
+        )
+        .add_systems(
+            OnEnter(crate::states::GameState::Outro),
+            (reset_init_global_state, crate::save_data::save_data).chain(),
         );
     }
 }
@@ -44,9 +57,12 @@ fn start_game(
         return;
     }
 
+    info!("start_game: Initializing game data from save data");
     let (player_skills, cycle_counter) = save_data.to_resources();
     commands.insert_resource(player_skills);
     commands.insert_resource(cycle_counter);
+    // remove it so we don't make use of it later when we don't mean to
+    commands.remove_resource::<crate::menus::NewGame>();
 }
 
 fn start_cycle(
@@ -71,6 +87,9 @@ fn reset_init_global_state(
     heal_timer: Option<ResMut<crate::skills::HealTimer>>,
     persistent_room_state: Option<ResMut<crate::room::PersistentRoomState>>,
 ) {
+    // so we don't restart if we have this left over for whatever reason
+    commands.remove_resource::<crate::player::PlayerDeathTimer>();
+
     // initialize the cycle counter if necessary
     if cycle_counter.is_none() {
         commands.insert_resource(CycleCounter::default());

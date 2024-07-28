@@ -20,26 +20,26 @@ impl Plugin for SaveDataPlugin {
 fn load_data(mut commands: Commands, pkv_store: Res<PkvStore>) {
     let save_string = match pkv_store.get::<String>("save_data") {
         Ok(string) => {
-            info!("save_data: successfully loaded save string");
+            info!("load_data: successfully loaded save string");
             string
         }
         Err(GetError::NotFound) => {
-            info!("save_data: no save data found");
+            info!("load_data: no save data found");
             return;
         }
         Err(e) => {
-            warn!("save_data: failed to load save string: {e}");
+            warn!("load_data: failed to load save string: {e}");
             return;
         }
     };
 
     let save_data = match ron::de::from_str::<SaveData>(&save_string) {
         Ok(data) => {
-            info!("save_data: successfully parsed save data");
+            info!("load_data: successfully parsed save data");
             data
         }
         Err(e) => {
-            error!("save_data: failed to parse save data: {e}");
+            error!("load_data: failed to parse save data: {e}");
             return;
         }
     };

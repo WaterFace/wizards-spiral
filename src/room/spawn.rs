@@ -106,6 +106,9 @@ pub fn spawn_enemies(
 
         if let Some(boss_stats) = boss_stats.as_ref() {
             spawned_enemy.insert((boss_stats.clone(), crate::enemy::Boss, Name::new("Boss")));
+            if boss_stats.name == "The Wizard" {
+                spawned_enemy.insert(crate::enemy::FinalBoss);
+            }
         }
     }
 

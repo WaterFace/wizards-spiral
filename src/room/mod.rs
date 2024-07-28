@@ -39,6 +39,15 @@ impl Plugin for RoomPlugin {
                     spawn::spawn_enemies,
                 )
                     .chain(),
+            )
+            .add_systems(
+                OnEnter(crate::states::GameState::Outro),
+                (
+                    spawn::destroy_room,
+                    crate::player::destroy_player,
+                    crate::camera::destroy_game_camera,
+                )
+                    .chain(),
             );
     }
 }

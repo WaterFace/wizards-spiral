@@ -72,7 +72,7 @@ pub struct PlayerSpawnPosition {
 pub struct PlayerDeathEvent;
 
 #[derive(Debug, Resource)]
-struct PlayerDeathTimer(Timer);
+pub struct PlayerDeathTimer(Timer);
 
 impl Default for PlayerDeathTimer {
     fn default() -> Self {
@@ -105,9 +105,10 @@ fn handle_player_death(
     mut player_query: Query<(Entity, &mut Transform), With<Player>>,
     mut cycle_counter: ResMut<crate::cycles::CycleCounter>,
     mut next_state: ResMut<NextState<crate::states::GameState>>,
+    final_boss_dead: Option<Res<crate::enemy::FinalBossDead>>,
     time: Res<Time>,
 ) {
-    if !player_health.dead {
+    if !player_health.dead || final_boss_dead.is_some() {
         return;
     }
 

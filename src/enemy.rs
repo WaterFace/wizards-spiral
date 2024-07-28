@@ -7,6 +7,7 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<EnemyAlertEvent>()
             .add_event::<EnemyDeathEvent>()
+            .add_event::<FinalBossDeadEvent>()
             .add_systems(
                 Update,
                 (
@@ -14,6 +15,7 @@ impl Plugin for EnemyPlugin {
                     alert_enemies,
                     alert_visual,
                     handle_enemy_death,
+                    handle_final_boss_death,
                 )
                     .run_if(in_state(crate::states::GameState::InGame)),
             );
@@ -82,6 +84,9 @@ pub struct Enemy;
 #[derive(Debug, Default, Component, Clone, Copy)]
 pub struct Boss;
 
+#[derive(Debug, Default, Component, Clone, Copy)]
+pub struct FinalBoss;
+
 #[derive(Debug, Event, Clone)]
 pub struct EnemyDeathEvent {
     pub entity: Entity,
@@ -149,6 +154,34 @@ pub enum EnemyAlertEventType {
     TooFar,
 }
 
+#[derive(Debug, Default, Event, Clone)]
+pub struct FinalBossDeadEvent;
+
+#[derive(Debug, Resource)]
+pub struct FinalBossDead(Timer);
+
+fn handle_final_boss_death(
+    mut commands: Commands,
+    mut reader: EventReader<FinalBossDeadEvent>,
+    final_boss_dead: Option<ResMut<FinalBossDead>>,
+    mut next_state: ResMut<NextState<crate::states::GameState>>,
+    time: Res<Time>,
+) {
+    for FinalBossDeadEvent in reader.read() {
+        commands.insert_resource(FinalBossDead(Timer::from_seconds(3.0, TimerMode::Once)));
+    }
+
+    if let Some(mut final_boss_dead) = final_boss_dead {
+        final_boss_dead.0.tick(time.delta());
+
+        if final_boss_dead.0.finished() {
+            info!("playing outro...");
+            commands.remove_resource::<FinalBossDead>();
+            next_state.set(crate::states::GameState::Outro);
+        }
+    }
+}
+
 fn handle_enemy_death(
     mut commands: Commands,
     mut events: EventReader<EnemyDeathEvent>,
@@ -157,11 +190,13 @@ fn handle_enemy_death(
         &crate::room::SpawnerIndex,
         &Sprite,
         &Handle<Image>,
+        Option<&FinalBoss>,
         Option<&BossStats>,
     )>,
     current_room: Res<crate::room::CurrentRoom>,
     mut room_state: ResMut<crate::room::PersistentRoomState>,
     mut skill_unlocks: EventWriter<crate::skills::SkillUnlockedEvent>,
+    mut final_boss_dead_event: EventWriter<FinalBossDeadEvent>,
 ) {
     let Some(current_room_state) = room_state.rooms.get_mut(&current_room.info.name) else {
         error!(
@@ -172,7 +207,7 @@ fn handle_enemy_death(
     };
 
     for EnemyDeathEvent { entity } in events.read() {
-        let Ok((global_transform, spawner_index, sprite, texture, boss_stats)) =
+        let Ok((global_transform, spawner_index, sprite, texture, final_boss, boss_stats)) =
             enemy_query.get(*entity)
         else {
             warn!(
@@ -181,6 +216,10 @@ fn handle_enemy_death(
             );
             continue;
         };
+
+        if let Some(_final_boss) = final_boss {
+            final_boss_dead_event.send(FinalBossDeadEvent);
+        }
 
         if let Some(boss_stats) = boss_stats {
             if let Some(skill) = boss_stats.skill_unlocked {

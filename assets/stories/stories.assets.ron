@@ -1,0 +1,4 @@
+({
+    "intro": File(path: "stories/intro.story.ron"),
+    "outro": File(path: "stories/outro.story.ron"),
+})

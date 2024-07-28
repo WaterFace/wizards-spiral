@@ -20,6 +20,15 @@ impl Plugin for MenusPlugin {
                         "sprites/ui/ui.assets.ron",
                     ),
             )
+            .add_loading_state(
+                LoadingState::new(crate::states::AppState::CoreLoading)
+                    .continue_to_state(crate::states::AppState::RoomLoading)
+                    .on_failure_continue_to_state(crate::states::AppState::AppClosing)
+                    .load_collection::<Stories>()
+                    .with_dynamic_assets_file::<StandardDynamicAssetCollection>(
+                        "stories/stories.assets.ron",
+                    ),
+            )
             .add_systems(
                 OnEnter(crate::states::AppState::RoomLoading),
                 (|| crate::states::AppState::RoomLoading).pipe(loading_screen),
@@ -32,6 +41,18 @@ impl Plugin for MenusPlugin {
             .add_systems(Update, process_button_interactions)
             .add_systems(OnEnter(crate::states::MenuState::SkillsMenu), skills_menu)
             .add_systems(
+                OnEnter(crate::states::GameState::Intro),
+                (|| crate::states::GameState::Intro).pipe(spawn_story_menu),
+            )
+            .add_systems(
+                OnEnter(crate::states::GameState::Outro),
+                (
+                    setup_outro,
+                    (|| crate::states::GameState::Outro).pipe(spawn_story_menu),
+                )
+                    .chain(),
+            )
+            .add_systems(
                 Update,
                 open_close_skills_menu.run_if(in_state(crate::states::GameState::InGame)),
             );
@@ -39,10 +60,16 @@ impl Plugin for MenusPlugin {
         // Menu systems
         let continue_game_id = app.register_system(continue_game);
         let new_game_id = app.register_system(new_game);
+
+        let next_page_id = app.register_system(next_page);
+        let prev_page_id = app.register_system(prev_page);
+
         app.insert_resource(MainMenuSystems {
             map: [
                 ("continue_game".to_string(), continue_game_id),
                 ("new_game".to_string(), new_game_id),
+                ("next_page".to_string(), next_page_id),
+                ("prev_page".to_string(), prev_page_id),
             ]
             .into(),
         });
@@ -95,6 +122,27 @@ pub struct UiAssets {
     pub speed_icon: Handle<Image>,
 }
 
+#[derive(Debug, AssetCollection, Resource)]
+pub struct Stories {
+    #[asset(key = "intro")]
+    pub intro: Handle<Story>,
+    #[asset(key = "outro")]
+    pub outro: Handle<Story>,
+}
+
+#[derive(Debug, Default, Clone, Resource, Asset, Reflect, serde::Deserialize)]
+pub struct Story {
+    pub pages: Vec<String>,
+}
+
+#[derive(Debug, Resource)]
+pub struct StoryState<S> {
+    pub page: usize,
+    pub story: Story,
+    pub prev_state: Option<S>,
+    pub next_state: S,
+}
+
 #[derive(Debug, Resource)]
 pub struct MainMenuSystems {
     pub map: HashMap<String, SystemId>,
@@ -103,41 +151,319 @@ pub struct MainMenuSystems {
 #[derive(Debug, Default, Component)]
 struct ButtonSystem(&'static str);
 
+#[derive(Debug, Component, Default)]
+struct ButtonPreviousInteraction(Option<Interaction>);
+
 /// when inserted, indicates that we want to start a new game, deleting the previous save data
 #[derive(Debug, Default, Resource)]
 pub struct NewGame;
+
+#[derive(Debug, Default, Component)]
+pub struct StoryTextDisplay;
+
+#[derive(Debug, Default, Component)]
+pub struct PageCount;
+
+fn next_page(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<crate::states::GameState>>,
+    mut display_query: Query<&mut Text, With<StoryTextDisplay>>,
+    mut page_count_query: Query<&mut Text, (With<PageCount>, Without<StoryTextDisplay>)>,
+    mut story_state: ResMut<StoryState<crate::states::GameState>>,
+    fonts: Res<crate::text::Fonts>,
+) {
+    if story_state.page + 1 >= story_state.story.pages.len() {
+        next_state.set(story_state.next_state);
+        commands.remove_resource::<StoryState<crate::states::GameState>>();
+    } else {
+        story_state.page += 1;
+        let mut text = display_query
+            .get_single_mut()
+            .expect("There should only be one StoryTextDisplay");
+
+        let sections = crate::util::highlight_text(
+            &story_state.story.pages[story_state.page],
+            bevy::color::palettes::basic::WHITE.into(),
+            HOVERED_BUTTON_COLOR,
+            36.0,
+            fonts.normal.clone(),
+        );
+        *text = Text::from_sections(sections);
+
+        let mut text = page_count_query
+            .get_single_mut()
+            .expect("There should only be one PageCount");
+
+        *text = Text::from_section(
+            format!(
+                "{} / {}",
+                story_state.page + 1,
+                story_state.story.pages.len()
+            ),
+            TextStyle {
+                color: bevy::color::palettes::basic::WHITE.into(),
+                font: fonts.normal.clone(),
+                font_size: 36.0,
+            },
+        );
+    }
+}
+
+fn prev_page(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<crate::states::GameState>>,
+    mut display_query: Query<&mut Text, With<StoryTextDisplay>>,
+    mut page_count_query: Query<&mut Text, (With<PageCount>, Without<StoryTextDisplay>)>,
+    mut story_state: ResMut<StoryState<crate::states::GameState>>,
+    fonts: Res<crate::text::Fonts>,
+) {
+    if story_state.page == 0 {
+        if let Some(prev_state) = story_state.prev_state {
+            next_state.set(prev_state);
+            commands.remove_resource::<StoryState<crate::states::GameState>>();
+        }
+        // otherwise do nothing
+    } else {
+        story_state.page -= 1;
+        let mut text = display_query
+            .get_single_mut()
+            .expect("There should only be one StoryTextDisplay");
+
+        let sections = crate::util::highlight_text(
+            &story_state.story.pages[story_state.page],
+            bevy::color::palettes::basic::WHITE.into(),
+            HOVERED_BUTTON_COLOR,
+            36.0,
+            fonts.normal.clone(),
+        );
+        *text = Text::from_sections(sections);
+
+        let mut text = page_count_query
+            .get_single_mut()
+            .expect("There should only be one PageCount");
+
+        *text = Text::from_section(
+            format!(
+                "{} / {}",
+                story_state.page + 1,
+                story_state.story.pages.len()
+            ),
+            TextStyle {
+                color: bevy::color::palettes::basic::WHITE.into(),
+                font: fonts.normal.clone(),
+                font_size: 36.0,
+            },
+        );
+    }
+}
 
 fn continue_game(mut next_state: ResMut<NextState<crate::states::GameState>>) {
     next_state.set(crate::states::GameState::RestartCycle);
 }
 
-fn new_game(mut commands: Commands, mut next_state: ResMut<NextState<crate::states::GameState>>) {
+fn new_game(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<crate::states::GameState>>,
+    stories: Res<Stories>,
+    story_assets: Res<Assets<Story>>,
+) {
     commands.init_resource::<NewGame>();
-    next_state.set(crate::states::GameState::RestartCycle);
+    let intro = story_assets
+        .get(&stories.intro)
+        .expect("Story assets have loaded by this point");
+    commands.insert_resource(StoryState {
+        page: 0,
+        next_state: crate::states::GameState::RestartCycle,
+        prev_state: Some(crate::states::GameState::MainMenu),
+        story: intro.clone(),
+    });
+    next_state.set(crate::states::GameState::Intro);
+}
+
+fn setup_outro(mut commands: Commands, stories: Res<Stories>, story_assets: Res<Assets<Story>>) {
+    let outro = story_assets
+        .get(&stories.outro)
+        .expect("Story assets have loaded by this point");
+    commands.insert_resource(StoryState {
+        page: 0,
+        next_state: crate::states::GameState::MainMenu,
+        prev_state: None,
+        story: outro.clone(),
+    });
+}
+
+fn spawn_story_menu<S: States + Clone>(
+    In(state): In<S>,
+    mut commands: Commands,
+    fonts: Res<crate::text::Fonts>,
+    story_state: Res<StoryState<crate::states::GameState>>,
+    ui_assets: Res<UiAssets>,
+) {
+    commands.spawn((crate::camera::menu_camera(), StateScoped(state.clone())));
+
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(vec2(1280.0, 720.0)),
+                ..Default::default()
+            },
+            texture: ui_assets.menu_background.clone(),
+            ..Default::default()
+        },
+        StateScoped(state.clone()),
+        Name::new("Menu Background"),
+    ));
+    let prev_page = commands.spawn_button(
+        crate::states::GameState::MainMenu,
+        "Previous",
+        Some("prev_page"),
+        fonts.normal.clone(),
+        ui_assets.panel.clone(),
+    );
+    let page_count = commands
+        .spawn((
+            TextBundle {
+                style: Style {
+                    margin: UiRect::all(Val::Px(16.0)),
+                    justify_self: JustifySelf::Center,
+                    align_self: AlignSelf::Center,
+                    ..Default::default()
+                },
+                text: Text::from_section(
+                    format!(
+                        "{} / {}",
+                        story_state.page + 1,
+                        story_state.story.pages.len() + 1
+                    ),
+                    TextStyle {
+                        color: bevy::color::palettes::basic::WHITE.into(),
+                        font: fonts.normal.clone(),
+                        font_size: 36.0,
+                    },
+                ),
+                ..Default::default()
+            },
+            PageCount,
+        ))
+        .id();
+    let next_page = commands.spawn_button(
+        crate::states::GameState::MainMenu,
+        "Next",
+        Some("next_page"),
+        fonts.normal.clone(),
+        ui_assets.panel.clone(),
+    );
+
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(50.0),
+                    height: Val::Percent(75.0),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    flex_direction: FlexDirection::Column,
+                    align_self: AlignSelf::Center,
+                    justify_self: JustifySelf::Center,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            StateScoped(state.clone()),
+            Name::new("Story Menu Root"),
+        ))
+        .with_children(|parent| {
+            parent
+                .spawn((
+                    ImageBundle {
+                        style: Style {
+                            padding: UiRect::all(Val::Px(16.0)),
+                            width: Val::Percent(100.0),
+                            flex_wrap: FlexWrap::Wrap,
+                            flex_direction: FlexDirection::Row,
+                            justify_content: JustifyContent::Start,
+                            align_content: AlignContent::Center,
+                            min_height: Val::Px(400.0),
+                            ..Default::default()
+                        },
+                        image: UiImage {
+                            texture: ui_assets.panel.clone(),
+                            color: bevy::color::palettes::tailwind::GRAY_500.into(),
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    ImageScaleMode::Sliced(TextureSlicer {
+                        border: BorderRect::square(16.0),
+                        ..Default::default()
+                    }),
+                    Name::new("Story Menu Text Container"),
+                ))
+                .with_children(|parent| {
+                    let sections = crate::util::highlight_text(
+                        &story_state.story.pages[story_state.page],
+                        bevy::color::palettes::basic::WHITE.into(),
+                        HOVERED_BUTTON_COLOR,
+                        36.0,
+                        fonts.normal.clone(),
+                    );
+                    parent.spawn((
+                        TextBundle {
+                            style: Style {
+                                margin: UiRect::all(Val::Px(16.0)),
+                                ..Default::default()
+                            },
+                            text: Text::from_sections(sections),
+                            ..Default::default()
+                        },
+                        StoryTextDisplay,
+                        Name::new("Story Menu Text Display"),
+                    ));
+                });
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        flex_direction: FlexDirection::Row,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .add_child(prev_page)
+                .add_child(page_count)
+                .add_child(next_page);
+        });
 }
 
 fn process_button_interactions(
     mut commands: Commands,
-    mut query: Query<(&Interaction, &mut UiImage, &ButtonSystem)>,
+    mut query: Query<(
+        &Interaction,
+        &mut ButtonPreviousInteraction,
+        &mut UiImage,
+        &ButtonSystem,
+    )>,
     menu_systems: Res<MainMenuSystems>,
 ) {
-    for (interaction, mut ui_image, button_system) in query.iter_mut() {
+    for (interaction, mut previous_interaction, mut ui_image, button_system) in query.iter_mut() {
         match interaction {
             Interaction::Hovered => {
                 ui_image.color = HOVERED_BUTTON_COLOR;
+                if matches!(previous_interaction.0, Some(Interaction::Pressed)) {
+                    let Some(system_id) = menu_systems.map.get(button_system.0) else {
+                        error!("Menu system not found: {}", button_system.0);
+                        continue;
+                    };
+                    commands.run_system(*system_id);
+                }
             }
             Interaction::Pressed => {
                 ui_image.color = PRESSED_BUTTON_COLOR;
-                let Some(system_id) = menu_systems.map.get(button_system.0) else {
-                    error!("Menu system not found: {}", button_system.0);
-                    continue;
-                };
-                commands.run_system(*system_id);
             }
             Interaction::None => {
                 ui_image.color = BASE_BUTTON_COLOR;
             }
         }
+        previous_interaction.0 = Some(*interaction);
     }
 }
 
@@ -437,6 +763,7 @@ impl MenuCommandsExt for Commands<'_, '_> {
                 ..Default::default()
             }),
             StateScoped(state),
+            ButtonPreviousInteraction::default(),
             Name::new("Button"),
         ));
 

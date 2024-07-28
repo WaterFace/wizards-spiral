@@ -18,6 +18,8 @@ pub enum GameState {
     InGame,
     RoomTransition,
     RestartCycle,
+    Intro,
+    Outro,
 }
 
 #[derive(Debug, Default, States, Hash, Eq, PartialEq, Clone, Copy)]
