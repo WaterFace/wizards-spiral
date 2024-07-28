@@ -17,16 +17,18 @@ impl Plugin for TextPlugin {
         .add_systems(Update, floating_text)
         .add_systems(
             Update,
-            (update_next_room_text, level_up_text)
+            (
+                update_next_room_text,
+                level_up_text,
+                handle_text_markers,
+                heal_text,
+                skill_unlocked_text,
+            )
                 .run_if(in_state(crate::states::GameState::InGame)),
         )
         .add_systems(
             Update,
             update_aabb_fields.run_if(not(in_state(crate::states::AppState::CoreLoading))),
-        )
-        .add_systems(
-            Update,
-            handle_text_markers.run_if(in_state(crate::states::GameState::InGame)),
         )
         .add_loading_state(
             LoadingState::new(crate::states::AppState::CoreLoading)
@@ -37,6 +39,88 @@ impl Plugin for TextPlugin {
                     "fonts/fonts.assets.ron",
                 ),
         );
+    }
+}
+
+fn skill_unlocked_text(
+    mut commands: Commands,
+    player_query: Query<Entity, With<crate::player::Player>>,
+    mut events: EventReader<crate::skills::SkillFirstUnlockedEvent>,
+) {
+    const OFFSET: Vec3 = bevy_math::vec3(0.0, 16.0, 0.0);
+    const VELOCITY: Vec2 = bevy_math::vec2(0.0, 16.0);
+    let Ok(player) = player_query.get_single() else {
+        warn!("level_up_text: no player or more than one player found");
+        return;
+    };
+
+    for crate::skills::SkillFirstUnlockedEvent { skill } in events.read() {
+        let floating_text = commands
+            .spawn((
+                SpatialBundle {
+                    transform: Transform::from_translation(OFFSET),
+                    ..Default::default()
+                },
+                crate::text::TextMarker {
+                    color: Some(bevy::color::palettes::css::STEEL_BLUE.into()),
+                    fancy: false,
+                    font_size: 18.0,
+                    text: format!("{} unlocked", skill),
+                    ..Default::default()
+                },
+                crate::text::FloatingText {
+                    timer: Timer::from_seconds(2.0, TimerMode::Once),
+                    velocity: VELOCITY,
+                    ..Default::default()
+                },
+                Name::new("Skill Unlocked Floating Text"),
+            ))
+            .id();
+        let Some(mut entity_commands) = commands.get_entity(player) else {
+            continue;
+        };
+        entity_commands.add_child(floating_text);
+    }
+}
+
+fn heal_text(
+    mut commands: Commands,
+    player_query: Query<Entity, With<crate::player::Player>>,
+    mut events: EventReader<crate::skills::HealEvent>,
+) {
+    const OFFSET: Vec3 = bevy_math::vec3(0.0, 16.0, 0.0);
+    const VELOCITY: Vec2 = bevy_math::vec2(0.0, 16.0);
+    let Ok(player) = player_query.get_single() else {
+        warn!("level_up_text: no player or more than one player found");
+        return;
+    };
+
+    for crate::skills::HealEvent in events.read() {
+        let floating_text = commands
+            .spawn((
+                SpatialBundle {
+                    transform: Transform::from_translation(OFFSET),
+                    ..Default::default()
+                },
+                crate::text::TextMarker {
+                    color: Some(bevy::color::palettes::css::GREEN.into()),
+                    fancy: false,
+                    font_size: 18.0,
+                    text: "+".to_string(),
+                    ..Default::default()
+                },
+                crate::text::FloatingText {
+                    timer: Timer::from_seconds(0.5, TimerMode::Once),
+                    velocity: VELOCITY,
+                    ..Default::default()
+                },
+                Name::new("Healing Floating Text"),
+            ))
+            .id();
+        let Some(mut entity_commands) = commands.get_entity(player) else {
+            continue;
+        };
+        entity_commands.add_child(floating_text);
     }
 }
 

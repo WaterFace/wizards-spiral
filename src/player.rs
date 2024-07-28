@@ -155,6 +155,7 @@ fn move_player(
 pub fn spawn_player(
     mut commands: Commands,
     player_spawn_pos: Option<Res<PlayerSpawnPosition>>,
+    player_skills: Res<crate::skills::PlayerSkills>,
     player_assets: Res<PlayerAssets>,
 ) {
     let spawn_position = player_spawn_pos.map(|a| a.pos).unwrap_or(Vec2::ZERO);
@@ -165,7 +166,10 @@ pub fn spawn_player(
             ..Default::default()
         })
         .insert((
-            crate::character_controller::CharacterController::default(),
+            crate::character_controller::CharacterController {
+                max_speed: player_skills.get_total_speed(),
+                ..Default::default()
+            },
             Player,
             RigidBody::Dynamic,
             Collider::ball(16.0),

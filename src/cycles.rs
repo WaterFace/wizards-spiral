@@ -67,6 +67,8 @@ fn reset_init_global_state(
     mut commands: Commands,
     cycle_counter: Option<ResMut<CycleCounter>>,
     player_skills: Option<ResMut<crate::skills::PlayerSkills>>,
+    player_speed_timer: Option<ResMut<crate::skills::PlayerSpeedTimer>>,
+    heal_timer: Option<ResMut<crate::skills::HealTimer>>,
     persistent_room_state: Option<ResMut<crate::room::PersistentRoomState>>,
 ) {
     // initialize the cycle counter if necessary
@@ -77,7 +79,7 @@ fn reset_init_global_state(
     {
         if let Some(player_skills) = player_skills.as_ref() {
             commands.insert_resource(crate::player::PlayerHealth::new(
-                100.0 * player_skills.mass(),
+                100.0 * player_skills.max_health(),
             ));
         } else {
             commands.insert_resource(crate::player::PlayerHealth::default())
@@ -89,6 +91,20 @@ fn reset_init_global_state(
         player_skills.end_cycle();
     } else {
         commands.insert_resource(crate::skills::PlayerSkills::default());
+    }
+
+    // reset the speed timer
+    if let Some(mut player_speed_timer) = player_speed_timer {
+        player_speed_timer.reset();
+    } else {
+        commands.insert_resource(crate::skills::PlayerSpeedTimer::new());
+    }
+
+    // reset the heal timer
+    if let Some(mut heal_timer) = heal_timer {
+        heal_timer.reset();
+    } else {
+        commands.insert_resource(crate::skills::HealTimer::new());
     }
 
     // remove the cached spawn data so rooms will spawn freshly

@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use super::LevelUpEvent;
 
-#[derive(Debug, Clone, Copy, Reflect, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, Reflect, PartialEq, Eq, serde::Deserialize)]
 pub enum Skill {
     Armor,
     Sword,
@@ -157,7 +157,7 @@ impl PlayerSkills {
     /// returns the total amount of xp required to gain one level in the given skill.
     /// does not include any xp currently stored
     pub fn xp_needed(&self, skill: Skill) -> f32 {
-        1.0 + self.get_f32(skill) / 10.0
+        1.0 + self.get_f32(skill) / 5.0
     }
 
     /// if the total amount of xp for this skill is greater than `xp`,
@@ -246,7 +246,7 @@ impl PlayerSkills {
 
     /// the amount of damage the player will deal
     pub fn attack_damage(&self) -> f32 {
-        10.0 + (1.0 / 60.0) * (self.get_f32(Skill::Sword)).powi(2)
+        10.0 + (1.0 / 30.0) * (self.get_f32(Skill::Sword)).powf(1.8)
     }
 
     /// the fraction of damage the player will take. returns a value between 0 and 1
@@ -272,12 +272,17 @@ impl PlayerSkills {
         }
     }
 
-    /// mass increases maximum health, divides the magnitude of incoming knockback, and multiplies the outgoing magnitude
+    /// mass divides the magnitude of incoming knockback, and multiplies the outgoing magnitude
     pub fn mass(&self) -> f32 {
         1.0 + (self.get_f32(Skill::Pants) / 10.0).sqrt()
     }
 
-    /// returns the fraction of health healed every 5 seconds
+    /// multiplier on player max health. derived from the Pants skill
+    pub fn max_health(&self) -> f32 {
+        1.0 + (self.get_f32(Skill::Pants) / 50.0).sqrt()
+    }
+
+    /// returns the fraction of health healed every 3 seconds
     pub fn healing(&self) -> f32 {
         0.5 - 98.0 / (self.get_f32(Skill::Healing).powi(2) + 200.0)
     }
@@ -285,6 +290,11 @@ impl PlayerSkills {
     /// returns the player's speed multiplier
     pub fn speed(&self) -> f32 {
         1.0 + f32::log2(self.get_f32(Skill::Speed) + 1.0) / f32::log2(25.0)
+    }
+
+    pub fn get_total_speed(&self) -> f32 {
+        let base_speed = crate::character_controller::CharacterController::default().max_speed;
+        base_speed * self.speed()
     }
 
     /// returns a string describing what the given skill does, including its current effects.
@@ -308,16 +318,16 @@ impl PlayerSkills {
             }
             Skill::Shield => {
                 format!(
-                    "Prince's Shield - Level *{}*\nBlock *{}%* of attacks",
+                    "Prince's Shield - Level *{}*\nBlocks *{}%* of attacks",
                     self.get(Skill::Shield),
                     fraction_to_percent(self.block_chance()),
                 )
             }
             Skill::Pants => {
                 format!(
-                    "Wulf's Pants - Level *{}*\nIncreases maximum health to *{}%* and *improves knockback*",
+                    "Wulf's Pants - Level *{}*\nIncreases maximum health by *{}%* and *improves knockback*",
                     self.get(Skill::Pants),
-                    fraction_to_percent(self.mass()),
+                    fraction_to_percent(self.max_health()) - 100,
                 )
             }
             Skill::Mirror => {
@@ -338,7 +348,7 @@ impl PlayerSkills {
                 format!(
                     "Artist's Boots - Level *{}*\nMove *{}%* faster",
                     self.get(Skill::Speed),
-                    fraction_to_percent(self.speed()),
+                    fraction_to_percent(self.speed()) - 100,
                 )
             }
         }
