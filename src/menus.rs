@@ -333,7 +333,7 @@ fn spawn_story_menu<S: States + Clone>(
                     format!(
                         "{} / {}",
                         story_state.page + 1,
-                        story_state.story.pages.len() + 1
+                        story_state.story.pages.len()
                     ),
                     TextStyle {
                         color: bevy::color::palettes::basic::WHITE.into(),
