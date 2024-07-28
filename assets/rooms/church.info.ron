@@ -1,0 +1,9 @@
+(
+    name: "Whitestone Cathedral",
+    rect: Rect(min: Vec2(-300.0, -300.0), max: Vec2(300.0, 300.0)),
+    boss: true,
+    num_melee_enemies: 10,
+    num_ranged_enemies: 5,
+    num_obstacles: 5,
+    south: Some("Fields of Clover"),
+)

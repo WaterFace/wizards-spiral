@@ -5,6 +5,7 @@
     num_melee_enemies: 15,
     num_ranged_enemies: 10,
     num_obstacles: 30,
+    north: Some("Whitestone Cathedral"),
     south: Some("Lovely Cottage"),
     east: Some("Overflowing Graveyard"),
     west: Some("Frozen Lake"),

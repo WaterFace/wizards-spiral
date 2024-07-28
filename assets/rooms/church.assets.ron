@@ -1,0 +1,30 @@
+({
+    "info": File(path: "rooms/church.info.ron"),
+
+    "background_texture": Image(
+        path: "sprites/church/ChurchBackground.png",
+        sampler: Nearest
+    ),
+    "obstacle_texture": Image(
+        path: "sprites/church/ChurchObstacle.png",
+        sampler: Nearest
+    ),
+
+    "boss_stats": File (path: "enemies/church/father.boss.ron"),
+
+    "melee_enemy_texture": Image(
+        path: "sprites/church/PaladinKnight.png",
+        sampler: Nearest
+    ),
+    "melee_enemy_stats": File(path:"enemies/church/paladin_knight.enemy.ron"),
+
+    "ranged_enemy_texture": Image(
+        path: "sprites/church/PaladinArcher.png",
+        sampler: Nearest
+    ),
+    "ranged_enemy_stats": File(path:"enemies/church/paladin_archer.enemy.ron"),
+    "projectile": Image(
+        path: "sprites/church/HolyArrow.png",
+        sampler: Nearest,
+    )
+})

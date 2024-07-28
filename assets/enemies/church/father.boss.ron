@@ -1,0 +1,16 @@
+BossStats(
+    name: "Father Milcott, Paladin",
+    skill_unlocked: Some(Shield),
+    scale: 1.5,
+    stats: EnemyStats(
+        enemy_type: Melee(
+            melee_damage: 45.0,
+        ),
+        health: 800.0,
+        speed: 55.0,
+        mass: 3.0,
+        alert_radius: 150.0,
+        chase_radius: 250.0,
+        desired_distance: 0.0,
+    )
+)
