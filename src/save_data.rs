@@ -51,8 +51,9 @@ pub fn save_data(
     mut pkv_store: ResMut<PkvStore>,
     player_skills: Res<crate::skills::PlayerSkills>,
     cycle_counter: Res<crate::cycles::CycleCounter>,
+    muted: Res<crate::audio::Muted>,
 ) {
-    let save_data = SaveData::from_resources(&player_skills, &cycle_counter);
+    let save_data = SaveData::from_resources(&player_skills, &cycle_counter, &muted);
 
     let ron_string = match ron::ser::to_string(&save_data) {
         Ok(string) => {
@@ -77,6 +78,8 @@ pub fn save_data(
 
 #[derive(Debug, Resource, serde::Deserialize, serde::Serialize)]
 pub struct SaveData {
+    #[serde(default)]
+    pub audio_muted: bool,
     pub cycles: u64,
 
     pub armor_level: u64,
@@ -115,8 +118,10 @@ impl SaveData {
     pub fn from_resources(
         player_skills: &crate::skills::PlayerSkills,
         cycle_counter: &crate::cycles::CycleCounter,
+        muted: &crate::audio::Muted,
     ) -> Self {
         Self {
+            audio_muted: muted.muted,
             cycles: cycle_counter.count,
 
             armor_level: player_skills.get(crate::skills::Skill::Armor),
@@ -149,10 +154,19 @@ impl SaveData {
         }
     }
 
-    pub fn to_resources(&self) -> (crate::skills::PlayerSkills, crate::cycles::CycleCounter) {
+    pub fn to_resources(
+        &self,
+    ) -> (
+        crate::skills::PlayerSkills,
+        crate::cycles::CycleCounter,
+        crate::audio::Muted,
+    ) {
         (
             crate::skills::PlayerSkills::from_save_data(self),
             crate::cycles::CycleCounter { count: self.cycles },
+            crate::audio::Muted {
+                muted: self.audio_muted,
+            },
         )
     }
 }

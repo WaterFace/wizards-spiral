@@ -69,7 +69,9 @@ pub struct PlayerSpawnPosition {
 }
 
 #[derive(Debug, Default, Clone, Event)]
-pub struct PlayerDeathEvent;
+pub struct PlayerDeathEvent {
+    pub pos: Vec2,
+}
 
 #[derive(Debug, Resource)]
 pub struct PlayerDeathTimer(Timer);
@@ -106,6 +108,7 @@ fn handle_player_death(
     mut cycle_counter: ResMut<crate::cycles::CycleCounter>,
     mut next_state: ResMut<NextState<crate::states::GameState>>,
     final_boss_dead: Option<Res<crate::enemy::FinalBossDead>>,
+    mut player_death_events: EventWriter<PlayerDeathEvent>,
     time: Res<Time>,
 ) {
     if !player_health.dead || final_boss_dead.is_some() {
@@ -127,6 +130,10 @@ fn handle_player_death(
         let Ok((player_entity, mut transform)) = player_query.get_single_mut() else {
             panic!("handle_player_death")
         };
+
+        player_death_events.send(PlayerDeathEvent {
+            pos: transform.translation.truncate(),
+        });
         commands
             .entity(player_entity)
             .remove::<Collider>()

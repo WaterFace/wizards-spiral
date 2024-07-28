@@ -42,7 +42,7 @@ pub enum DamageEvent {
 
 fn handle_damage_events(
     mut damage_events: EventReader<DamageEvent>,
-    mut enemy_query: Query<&mut crate::enemy::EnemyHealth>,
+    mut enemy_query: Query<(&mut crate::enemy::EnemyHealth, &GlobalTransform)>,
     player_skills: Res<crate::skills::PlayerSkills>,
     mut enemy_death_events: EventWriter<crate::enemy::EnemyDeathEvent>,
     mut damage_blocked_events: EventWriter<DamageBlockedEvent>,
@@ -66,13 +66,14 @@ fn handle_damage_events(
                 }
             }
             DamageEvent::Enemy { entity, damage } => {
-                let Ok(mut enemy_health) = enemy_query.get_mut(*entity) else {
+                let Ok((mut enemy_health, enemy_global_transform)) = enemy_query.get_mut(*entity) else {
                     warn!("Got damage event for non-existant enemy {:?}", entity);
                     continue;
                 };
                 enemy_health.current -= damage;
                 if enemy_health.current <= 0.0 {
-                    enemy_death_events.send(crate::enemy::EnemyDeathEvent { entity: *entity });
+                    let enemy_pos = enemy_global_transform.translation().truncate();
+                    enemy_death_events.send(crate::enemy::EnemyDeathEvent { entity: *entity, pos: enemy_pos });
                 }
             }
         }

@@ -90,6 +90,7 @@ pub struct FinalBoss;
 #[derive(Debug, Event, Clone)]
 pub struct EnemyDeathEvent {
     pub entity: Entity,
+    pub pos: Vec2,
 }
 
 #[derive(Debug, Component)]
@@ -206,7 +207,7 @@ fn handle_enemy_death(
         return;
     };
 
-    for EnemyDeathEvent { entity } in events.read() {
+    for EnemyDeathEvent { entity, .. } in events.read() {
         let Ok((global_transform, spawner_index, sprite, texture, final_boss, boss_stats)) =
             enemy_query.get(*entity)
         else {

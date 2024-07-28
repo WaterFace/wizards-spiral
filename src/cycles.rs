@@ -58,9 +58,10 @@ fn start_game(
     }
 
     info!("start_game: Initializing game data from save data");
-    let (player_skills, cycle_counter) = save_data.to_resources();
+    let (player_skills, cycle_counter, muted) = save_data.to_resources();
     commands.insert_resource(player_skills);
     commands.insert_resource(cycle_counter);
+    commands.insert_resource(muted);
     // remove it so we don't make use of it later when we don't mean to
     commands.remove_resource::<crate::menus::NewGame>();
 }

@@ -1,0 +1,10 @@
+({
+    "melee_hit": File(path: "sounds/sword-hit-7160.ogg"),
+    "projectile_hit": File(path: "sounds/arrow-impact-87260.ogg"),
+    "shield_block": File(path: "sounds/metal_03-108358.ogg"),
+    "death": File(path: "sounds/loud-thud-45719.ogg"),
+    "new_skill": File(path: "sounds/success-fanfare-trumpets-6185.ogg"),
+    "projectile_reflect": File(path: "sounds/sword-schwing-40520.ogg"),
+    "running": File(path: "sounds/running-1-6846.ogg"),
+    "heal": File(path: "sounds/health-pickup-6860.ogg"),
+})

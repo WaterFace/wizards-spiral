@@ -36,6 +36,7 @@ impl PlayerAction {
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
 pub enum MenuAction {
     SkillsMenu,
+    MuteSounds,
 }
 
 impl MenuAction {
@@ -44,6 +45,7 @@ impl MenuAction {
             (MenuAction::SkillsMenu, KeyCode::Space),
             (MenuAction::SkillsMenu, KeyCode::Tab),
             (MenuAction::SkillsMenu, KeyCode::KeyI),
+            (MenuAction::MuteSounds, KeyCode::KeyM),
         ])
     }
 }
