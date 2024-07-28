@@ -244,12 +244,7 @@ fn handle_text_markers(
             &fonts.normal
         };
 
-        info!("handle_text_markers: {:?}", e);
-        let Some(mut entity_commands) = commands.get_entity(e) else {
-            continue;
-        };
-
-        entity_commands.with_children(|parent| {
+        commands.entity(e).with_children(|parent| {
             parent.spawn((
                 Text2dBundle {
                     transform: Transform::from_xyz(0.0, 0.0, BASE_Z)
