@@ -48,8 +48,10 @@ struct HealthbarSpriteRect {
 }
 
 fn update_healthbars(
+    mut commands: Commands,
     enemy_query: Query<&crate::enemy::EnemyHealth>,
     mut healthbar_query: Query<(
+        Entity,
         &Healthbar,
         Option<&mut Visibility>,
         Option<&mut Sprite>,
@@ -57,12 +59,14 @@ fn update_healthbars(
     )>,
     player_health: Res<crate::player::PlayerHealth>,
 ) {
-    for (healthbar, visibility, sprite, sprite_rect) in healthbar_query.iter_mut() {
+    for (healthbar_entity, healthbar, visibility, sprite, sprite_rect) in healthbar_query.iter_mut()
+    {
         let health_fraction = match healthbar {
             Healthbar::Player => player_health.current / player_health.maximum,
             Healthbar::Enemy { entity } => {
                 let Ok(enemy_health) = enemy_query.get(*entity) else {
                     warn!("update_healthbars: healthbar is pointing to enemy {entity:?}, but that entity doesn't exist or have an EnemyHealth");
+                    commands.entity(healthbar_entity).despawn_recursive();
                     continue;
                 };
                 enemy_health.current / enemy_health.maximum
