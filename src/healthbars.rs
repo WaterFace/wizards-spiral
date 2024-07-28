@@ -136,7 +136,7 @@ fn spawn_healthbars(
                 .name
                 .clone();
             let boss_healthbar_scale = vec3(7.5, 7.5, 1.0);
-            commands
+            let boss_healthbar_root = commands
                 .spawn((
                     SpatialBundle {
                         transform: Transform::from_translation(vec3(
@@ -153,6 +153,7 @@ fn spawn_healthbars(
                     HealthbarSpriteRect {
                         rect: Rect::from_corners(Vec2::ZERO, healthbar_size),
                     },
+                    crate::room::RoomObject,
                     Name::new("Boss Healthbar Root"),
                 ))
                 .with_children(|parent| {
@@ -169,10 +170,13 @@ fn spawn_healthbars(
                         Name::new("Boss Healthbar Text"),
                     ));
                 })
-                .set_parent(camera_entity)
-                .id()
-        } else {
+                .id();
             commands
+                .entity(camera_entity)
+                .add_child(boss_healthbar_root);
+            boss_healthbar_root
+        } else {
+            let healthbar_root = commands
                 .spawn((
                     SpatialBundle {
                         transform: Transform::from_translation(OFFSET),
@@ -186,8 +190,9 @@ fn spawn_healthbars(
                     },
                     Name::new("Enemy Healthbar Root"),
                 ))
-                .set_parent(entity)
-                .id()
+                .id();
+            commands.entity(entity).add_child(healthbar_root);
+            healthbar_root
         };
 
         commands.entity(root).with_children(|parent| {
