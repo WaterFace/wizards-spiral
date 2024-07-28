@@ -1,0 +1,9 @@
+(
+    name: "Volcanic Scar",
+    rect: Rect(min: Vec2(-1000.0, -600.0), max: Vec2(1000.0, 600.0)),
+    boss: true,
+    num_melee_enemies: 25,
+    num_ranged_enemies: 25,
+    num_obstacles: 15,
+    south: Some("Overflowing Graveyard"),
+)

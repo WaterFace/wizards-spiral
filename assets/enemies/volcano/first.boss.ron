@@ -1,0 +1,16 @@
+BossStats(
+    name: "Un, the First Stone",
+    skill_unlocked: Some(Mirror),
+    scale: 3,
+    stats: EnemyStats(
+        enemy_type: Melee(
+            melee_damage: 400.0,
+        ),
+        health: 50000.0,
+        speed: 50.0,
+        mass: 15.0,
+        alert_radius: 250.0,
+        chase_radius: 500.0,
+        desired_distance: 0.0,
+    )
+)

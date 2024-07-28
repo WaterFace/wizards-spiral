@@ -1,0 +1,30 @@
+({
+    "info": File(path: "rooms/volcano.info.ron"),
+
+    "background_texture": Image(
+        path: "sprites/volcano/VolcanoBackground.png",
+        sampler: Nearest
+    ),
+    "obstacle_texture": Image(
+        path: "sprites/volcano/VolcanoObstacle.png",
+        sampler: Nearest
+    ),
+
+    "boss_stats": File(path: "enemies/volcano/first.boss.ron"),
+
+    "melee_enemy_texture": Image(
+        path: "sprites/volcano/StoneElemental.png",
+        sampler: Nearest
+    ),
+    "melee_enemy_stats": File(path:"enemies/volcano/stone_elemental.enemy.ron"),
+
+    "ranged_enemy_texture": Image(
+        path: "sprites/volcano/FireElemental.png",
+        sampler: Nearest
+    ),
+    "ranged_enemy_stats": File(path:"enemies/volcano/fire_elemental.enemy.ron"),
+    "projectile": Image(
+        path: "sprites/volcano/Fireball.png",
+        sampler: Nearest,
+    )
+})

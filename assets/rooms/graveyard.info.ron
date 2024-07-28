@@ -6,4 +6,5 @@
     num_ranged_enemies: 5,
     num_obstacles: 25,
     west: Some("Fields of Clover"),
+    north: Some("Volcanic Scar"),
 )
