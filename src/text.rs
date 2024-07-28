@@ -103,7 +103,7 @@ fn heal_text(
                     ..Default::default()
                 },
                 crate::text::TextMarker {
-                    color: Some(bevy::color::palettes::css::GREEN.into()),
+                    color: Some(bevy::color::palettes::css::LAWN_GREEN.into()),
                     fancy: false,
                     font_size: 18.0,
                     text: "+".to_string(),
