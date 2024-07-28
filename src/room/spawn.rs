@@ -251,9 +251,9 @@ pub fn spawn_room(
         // room state not found, spawn things freshly and cache the data
         let spawning_rectangle = {
             let room_rect = current_room.info.rect;
-            // don't spawn things on the outer 10% of the room
+            // don't spawn things on the outer edge of the room
             Rectangle {
-                half_size: room_rect.half_size() * 0.95,
+                half_size: room_rect.half_size() * 0.80,
             }
         };
 
