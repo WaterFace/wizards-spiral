@@ -22,11 +22,11 @@ impl Plugin for TextPlugin {
         )
         .add_systems(
             Update,
-            (
-                (apply_deferred, handle_text_markers, apply_deferred).chain(),
-                update_aabb_fields,
-            )
-                .run_if(not(in_state(crate::states::AppState::CoreLoading))),
+            update_aabb_fields.run_if(not(in_state(crate::states::AppState::CoreLoading))),
+        )
+        .add_systems(
+            Update,
+            handle_text_markers.run_if(in_state(crate::states::GameState::InGame)),
         )
         .add_loading_state(
             LoadingState::new(crate::states::AppState::CoreLoading)
