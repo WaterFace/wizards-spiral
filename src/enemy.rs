@@ -157,9 +157,11 @@ fn handle_enemy_death(
         &crate::room::SpawnerIndex,
         &Sprite,
         &Handle<Image>,
+        Option<&BossStats>,
     )>,
     current_room: Res<crate::room::CurrentRoom>,
     mut room_state: ResMut<crate::room::PersistentRoomState>,
+    mut skill_unlocks: EventWriter<crate::skills::SkillUnlockedEvent>,
 ) {
     let Some(current_room_state) = room_state.rooms.get_mut(&current_room.info.name) else {
         error!(
@@ -170,7 +172,8 @@ fn handle_enemy_death(
     };
 
     for EnemyDeathEvent { entity } in events.read() {
-        let Ok((global_transform, spawner_index, sprite, texture)) = enemy_query.get(*entity)
+        let Ok((global_transform, spawner_index, sprite, texture, boss_stats)) =
+            enemy_query.get(*entity)
         else {
             warn!(
                 "handle_enemy_death: Got EnemyDeathEvent for non-existent enemy {:?}",
@@ -178,6 +181,12 @@ fn handle_enemy_death(
             );
             continue;
         };
+
+        if let Some(boss_stats) = boss_stats {
+            if let Some(skill) = boss_stats.skill_unlocked {
+                skill_unlocks.send(crate::skills::SkillUnlockedEvent { skill });
+            }
+        }
 
         // set the persistent state so this enemy won't spawn anymore for this cycle
         current_room_state.spawners[spawner_index.0].active = false;
