@@ -4,6 +4,6 @@
     boss: false,
     num_melee_enemies: 0,
     num_ranged_enemies: 0,
-    num_obstacles: 0,
+    num_obstacles: 1,
     north: Some("Fields of Clover"),
 )

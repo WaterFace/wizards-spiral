@@ -6,7 +6,7 @@
         sampler: Nearest
     ),
     "obstacle_texture": Image(
-        path: "sprites/forest/ForestObstacle.png",
+        path: "sprites/cottage/CottageObstacle.png",
         sampler: Nearest
     ),
 
