@@ -1,0 +1,30 @@
+({
+    "info": File(path: "rooms/shrine.info.ron"),
+
+    "background_texture": Image(
+        path: "sprites/shrine/ShrineBackground.png",
+        sampler: Nearest
+    ),
+    "obstacle_texture": Image(
+        path: "sprites/shrine/ShrineObstacle.png",
+        sampler: Nearest
+    ),
+
+    "boss_stats": File(path: "enemies/shrine/sister.boss.ron"),
+
+    "melee_enemy_texture": Image(
+        path: "sprites/shrine/Dog.png",
+        sampler: Nearest
+    ),
+    "melee_enemy_stats": File(path:"enemies/shrine/dog.enemy.ron"),
+
+    "ranged_enemy_texture": Image(
+        path: "sprites/shrine/Priestess.png",
+        sampler: Nearest
+    ),
+    "ranged_enemy_stats": File(path:"enemies/shrine/priestess.enemy.ron"),
+    "projectile": Image(
+        path: "sprites/shrine/HolyEnergy.png",
+        sampler: Nearest,
+    )
+})

@@ -1,0 +1,11 @@
+(
+    enemy_type: Melee(
+        melee_damage: 10.0,
+    ),
+    health: 250.0,
+    speed: 400.0,
+    mass: 0.85,
+    alert_radius: 175.0,
+    chase_radius: 99999.0,
+    desired_distance: 0.0,
+)

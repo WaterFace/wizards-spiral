@@ -1,0 +1,9 @@
+(
+    name: "Shrine to Amanon",
+    rect: Rect(min: Vec2(-200.0, -800.0), max: Vec2(200.0, 800.0)),
+    boss: true,
+    num_melee_enemies: 50,
+    num_ranged_enemies: 5,
+    num_obstacles: 12,
+    north: Some("Frozen Lake"),
+)

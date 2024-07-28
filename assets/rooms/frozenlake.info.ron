@@ -6,4 +6,5 @@
     num_ranged_enemies: 10,
     num_obstacles: 8,
     east: Some("Fields of Clover"),
+    south: Some("Shrine to Amanon"),
 )

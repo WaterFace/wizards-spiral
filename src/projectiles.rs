@@ -263,7 +263,7 @@ fn launch_projectiles(
         commands.spawn((
             SpriteBundle {
                 texture: current_room.assets.projectile.clone(),
-                transform: Transform::from_translation(enemy_pos.extend(-1.0))
+                transform: Transform::from_translation(enemy_pos.extend(3.0))
                     .with_rotation(Quat::from_rotation_z(initial_angle)),
                 ..Default::default()
             },
