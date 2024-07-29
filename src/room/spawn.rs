@@ -324,6 +324,11 @@ pub fn spawn_room(
                     },
                     transform: Transform::from_translation(pos.extend(0.0)),
                     collider: Collider::capsule_y(12.0, 12.0),
+                    colision_groups: CollisionGroups::new(
+                        crate::physics::COLLISION_GROUP_OBSTACLE,
+                        crate::physics::COLLISION_GROUP_ENEMY
+                            | crate::physics::COLLISION_GROUP_PLAYER,
+                    ),
                     ..Default::default()
                 },
                 Name::new("Obstacle"),
